@@ -1,0 +1,9 @@
+---- Dial_ISP Matches (5 in 2 files) ----
+Device_gsm.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):					     DataDial.Dial_step=Dial_ISP;    
+Device_gsm.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):                       //  Dial_Stage(Dial_ISP);
+Device_gsm.c (bsp\stm32f407vgt6_recdrv\app_712\gsm): 		     case   Dial_ISP:
+Device_gsm.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):		     case Dial_ISP:
+Device_gsm.h (bsp\stm32f407vgt6_recdrv\app_712\gsm):typedef enum DialStage {Dial_DialInit0, Dial_DialInit1, Dial_DialInit2, Dial_DialInit3,Dial_DialInit4,Dial_DialInit5,Dial_DialInit6,Dial_DNSR1,Dial_DNSR2,Dial_DialInit7,Dial_MainLnk,Dial_AuxLnk,Dial_ISP,Dial_Idle} T_Dial_Stage;
+---- Dial_ISP Search Errors Encountered (1) ----
+The following 1 files could not be processed:
+D:\TW703_FormalUSE\TJ_JTJ\TJ_Local\RT-Thread_NewBoard-LCD2_gghypt_singleLink\bsp\stm32f407vgt6_RecDrv\JLinkLog.txt : File could not be opened.
