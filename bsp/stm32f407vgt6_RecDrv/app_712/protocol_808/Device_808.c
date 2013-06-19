@@ -607,6 +607,33 @@ void Socket_main_Set(u8* str)
 }
 FINSH_FUNCTION_EXPORT(Socket_main_Set,Set Socket main); 
 
+  void  debug_relay(u8 *str) 
+{
+ if (strlen(str)==0)
+	{
+       rt_kprintf("\r\n继电器(1:断开0:闭合)JT808Conf_struct.relay_flag=%d",JT808Conf_struct.relay_flag);
+       }
+else 
+	{
+	       if(str[0]=='1')
+		{
+		 Car_Status[2]|=0x08;     // 需要控制继电器
+		JT808Conf_struct.relay_flag=1;
+		Enable_Relay();
+		rt_kprintf("\r\n  断开继电器,JT808Conf_struct.relay_flag=%d\r\n",JT808Conf_struct.relay_flag); 
+		}
+	else if(str[0]=='0')
+		{
+		Car_Status[2]&=~0x08;    // 需要控制继电器
+		JT808Conf_struct.relay_flag=0;
+		Disable_Relay();
+		rt_kprintf("\r\n  接通继电器,JT808Conf_struct.relay_flag=%d\r\n",JT808Conf_struct.relay_flag); 
+		}
+	}
+ Api_Config_Recwrite_Large(jt808,0,(u8*)&JT808Conf_struct,sizeof(JT808Conf_struct)); 
+ rt_kprintf("\r\n(debug_relay)状态信息,[0]=%X  [1]=%X  [2]=%X  [3]=%X",Car_Status[0],Car_Status[1],Car_Status[2],Car_Status[3]);	
+ }
+FINSH_FUNCTION_EXPORT(debug_relay, Debug relay set) ;
 
 //==========================================================
  

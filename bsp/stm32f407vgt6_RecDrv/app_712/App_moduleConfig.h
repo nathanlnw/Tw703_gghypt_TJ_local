@@ -93,6 +93,8 @@
 #include "Device_printer.h" 
 #include "mma8451.h" 
 
+#include "SMS.h"
+
 
 
 // size                 

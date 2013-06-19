@@ -1392,14 +1392,19 @@
               <FilePath>.\app_712\lcd\SED1520.c</FilePath>
             </File>
             <File>
-              <FileName>Menu_0_4_Colour.c</FileName>
+              <FileName>Menu_0_4_VIN.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\app_712\lcd\Menu_0_4_Colour.c</FilePath>
+              <FilePath>.\app_712\lcd\Menu_0_4_VIN.c</FilePath>
             </File>
             <File>
-              <FileName>Menu_0_3_VIN.c</FileName>
+              <FileName>Menu_0_5_Colour.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\app_712\lcd\Menu_0_3_VIN.c</FilePath>
+              <FilePath>.\app_712\lcd\Menu_0_5_Colour.c</FilePath>
+            </File>
+            <File>
+              <FileName>Menu_0_3_Sim.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\app_712\lcd\Menu_0_3_Sim.c</FilePath>
             </File>
           </Files>
         </Group>

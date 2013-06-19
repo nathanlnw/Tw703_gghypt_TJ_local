@@ -563,7 +563,10 @@ typedef struct  _JT808Config   //name:  jt808
    	
     u8       OutGPS_Flag;     //  0  默认  1  接外部有源天线 
     u8       concuss_step;    //------add by  xijing
-    u8       password_flag;   //密码输入标志 
+    u8       password_flag;   //密码输入标志     
+    u8       relay_flag;      // 继电器开关状态
+
+	u8       Link_Frist_Mode;       //   首次连接模式        0  : dnsr first     1: mainlink  first 
     
      //--------  实时上报 ---------  
     REALTIME_LOCK    RT_LOCK;     // 实时跟踪      
@@ -1162,6 +1165,8 @@ extern void  Sleep_Mode_ConfigExit(void);
 extern void  CycleRail_Judge(u8* LatiStr,u8* LongiStr);
 extern void  RectangleRail_Judge(u8* LatiStr,u8* LongiStr);       
 extern u8    Save_MediaIndex( u8 type, u8* name, u8 ID,u8 Evencode);  
+extern void  vin_set(u8 *instr);
+extern void OutPrint_HEX(u8 * Descrip, u8 *instr, u16 inlen); 
 //extern void  Sound_SaveStart(void);
 //extern void  Sound_SaveEnd(void); 
 extern void    DoorCameraInit(void);

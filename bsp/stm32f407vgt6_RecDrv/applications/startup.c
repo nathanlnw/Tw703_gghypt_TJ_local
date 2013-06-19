@@ -97,7 +97,7 @@ void rtthread_startup(void)
  
 	 
     #endif 	 
-         rt_kprintf("\n\r   天津交通集团 北斗车载终端 双IP 全国货运平台 TW703-BD--13-6-11 - Version 1.3 !\r\n ");    
+         rt_kprintf("\n\r   天津交通集团 北斗车载终端  全国货运平台 TW703-BD--13-6-11 - Version 1.3 !\r\n ");    
 	/* show version */
 	rt_show_version();
 

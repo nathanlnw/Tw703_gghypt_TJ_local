@@ -386,6 +386,7 @@ u8     JT808_Conf_init( void )
                 JT808Conf_struct.OutGPS_Flag=1;     //  0  默认  1  接外部有源天线 
                 JT808Conf_struct.concuss_step=40;
 				JT808Conf_struct.password_flag=0;//初次为0，设置好后为1
+				JT808Conf_struct.Link_Frist_Mode=1; //     0  : dnsr first     1: mainlink  first
 		   JT808_RealTimeLock_Init();   //  实时跟踪设置	
 
 		    		 
@@ -1315,6 +1316,10 @@ void SetConfig(void)
                  BD_EXT_Read();   
 		   Api_Read_var_rd_wr();	  	  	   
 
+           
+			//---- 设备ID  --------	 
+		   memset(DeviceNumberID,0,sizeof(DeviceNumberID));
+		   DF_ReadFlash(DF_DeviceID_offset,0,(u8*)DeviceNumberID,12);  
 		   
 		   if(JT808Conf_struct.DF_K_adjustState)  
 		   {
@@ -1331,7 +1336,7 @@ void SetConfig(void)
 void DefaultConfig(void)
 {
    u32 DriveCode32=0;
-   u8  reg_str[30];
+   u8  reg_str[30],i=0;
 
        rt_kprintf("\r\n         SYSTEM ID=0x%X ",SysConf_struct.Version_ID);   
 	rt_kprintf("\r\n		   设置的鉴权码为: ");
@@ -1341,6 +1346,21 @@ void DefaultConfig(void)
   	   rt_kprintf("\r\n		   该终端已经注册过!    %d \r\n",JT808Conf_struct.Regsiter_Status);  
   else
   	   rt_kprintf("\r\n		   该终端被尚未被注册!\r\n");   
+  
+  
+	  rt_kprintf("\r\n中心控制断电= %d (1 : 断电  0 : 正常)\r\n", JT808Conf_struct.relay_flag);    
+   if(JT808Conf_struct.relay_flag==1)
+		  {
+	  Enable_Relay();
+	   Car_Status[2]|=0x08; 	// 需要控制继电器
+	   }
+  else
+	  {
+	  Disable_Relay();
+	  Car_Status[2]&=~0x08;    // 需要控制继电器
+	  rt_kprintf("\r\n继电器闭合");
+	  }
+  
         // APN 设置
 	  rt_kprintf("\r\n		   APN 设置 :%s	 \r\n",APN_String); 
          DataLink_APN_Set(APN_String,1); 
@@ -1454,15 +1474,40 @@ void DefaultConfig(void)
 		   rt_kprintf("空车2\r\n");  
 		  break;
 		}
-            rt_kprintf("\r\n\r\n  起始流水号: %d \r\n", JT808Conf_struct.Msg_Float_ID); 
+         rt_kprintf("\r\n\r\n  起始流水号: %d \r\n", JT808Conf_struct.Msg_Float_ID); 
 	     rt_kprintf("\r\n\r\n             cyc_read:   %d ,     cyc_write :%d\r\n  \r\n",cycle_read,cycle_write);     		
 
          //=====================================================================
          //API_List_Directories();
          //-----------  北斗模块相关  ---------
-	  BD_list(); 
+	     BD_list(); 
+
+		 // ----    首次连接类型  --------------------
+		 if(JT808Conf_struct.Link_Frist_Mode==1)
+		 	{
+                 rt_kprintf("\r\n\r\n   首次连接模式:   MainLink");    
+		 	}
+		 else
+		 	{
+                  rt_kprintf("\r\n\r\n   首次连接模式:  DNSR域名");     
+		 	}
+
+		if(DeviceNumberID[0]==0xFF)
+			rt_kprintf("\r\n  =======> 尚未设置设备编号，请重新设置\r\n" );  
+		else
+			{
+			rt_kprintf("\r\n 读取设备ID为 : "); 
+			for(i=0;i<12;i++)
+				rt_kprintf("%c",DeviceNumberID[i]);
+			rt_kprintf("\r\n");
+			}  
+
+	  	 
  
 }
+FINSH_FUNCTION_EXPORT(DefaultConfig, DefaultConfig);     
+
+
 
 /*
 读参数配置文件
@@ -1524,6 +1569,63 @@ void  idip(u8 *str)
 FINSH_FUNCTION_EXPORT(idip, id code set);
 
 
+
+void deviceid(u8 *str)
+{
+
+	  u8 i=0,value=0;
+	  u8 reg_str[20];
+	 
+	    memset(reg_str,0,sizeof(reg_str));
+	     if (strlen((const char*)str)==0){
+		   rt_kprintf("\r\n 设备ID为 : "); 
+		  for(i=0;i<12;i++)
+		  	rt_kprintf("%c",DeviceNumberID[i]); 
+		  rt_kprintf("\r\n");
+			return ;
+		}
+		else 
+		{	   
+          //---- check -------
+          memcpy(reg_str,str,strlen((const char*)str));	
+          if(strlen((const char*)reg_str)==12)  //  长度判断
+          {
+             for(i=0;i<12;i++)
+             	{ 
+             	   if(!((reg_str[i]>='0')&&(reg_str[i]<='9')))
+				   {
+				       value=1;
+					   break;
+             	   } 
+             	}
+
+			 if(value)
+			 	{
+			 	  rt_kprintf("\r\n 手动设置设备ID不合法!  \r\n");   
+                  return ;
+			 	} 
+
+          }
+		  else
+		  	{
+		  	    rt_kprintf("\r\n 手动设置设备ID 长度不正确!  \r\n");   
+                return ;
+		  	}	
+		 
+		  memset(DeviceNumberID,0,sizeof(DeviceNumberID));
+		  memcpy(DeviceNumberID,reg_str,12);								 
+		  DF_WriteFlashSector(DF_DeviceID_offset,0,DeviceNumberID,13); 
+		  delay_ms(80); 		  
+		  rt_kprintf("\r\n 手动设备ID设置为 : ");  
+		  DF_ReadFlash(DF_DeviceID_offset,0,DeviceNumberID,13);    
+		  DeviceID_Convert_SIMCODE();  // 转换 
+		  for(i=0;i<12;i++)
+		  	rt_kprintf("%c",DeviceNumberID[i]);
+		  rt_kprintf("\r\n");
+	         return ;
+		}
+}
+FINSH_FUNCTION_EXPORT(deviceid, deviceid set); 
 
 
 

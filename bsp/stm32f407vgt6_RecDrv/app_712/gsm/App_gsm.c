@@ -350,14 +350,17 @@ static void gsm_thread_entry(void* parameter)
 			 rt_hw_gsm_output(atd_str);
 			 rt_kprintf("\r\n²¦´ò%s\r\n",atd_str);
 			}
-		//---------  Step timer
-		  Dial_step_Single_10ms_timer();    
-		  	  //   TTS	
-                TTS_Data_Play();		  
-		 
-                //   Get  CSQ value
-	         GSM_CSQ_Query();	 
-
+		     //---------  Step timer
+		     Dial_step_Single_10ms_timer();    
+		  	 //   TTS	
+             TTS_Data_Play();		 
+             //   Get  CSQ value
+	          GSM_CSQ_Query();	 
+             
+			 //   SMS  Service
+			 SMS_Process();
+				
+             
 	         rt_thread_delay(20);  	     
 			   
 	}
@@ -385,7 +388,10 @@ static void timeout_gsm(void *  parameter)
     DialLink_TimeOut_Process();
  //  CSQ
      GSM_CSQ_timeout();
-
+  #ifdef SMS_ENABLE
+  //  SMS  timer
+    SMS_timer();
+ #endif
  //    RTC get 
     time_now=Get_RTC();  
 }   

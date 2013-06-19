@@ -124,7 +124,7 @@
 
 //------------------------------------------------------------------------------
 #define   SOFTWARE_VER     0x0001
-#define   SYSID            0x0324
+#define   SYSID            0x0363
                                 /*        
                                                         0x0000   -----   0x00FF  生产和研发用
                                                         0x0100   -----   0x0FFF  产品出货用
@@ -222,6 +222,7 @@ extern ALIGN(RT_ALIGN_SIZE)  TIRED_CONF      TiredConf_struct;    //  疲劳驾驶相
 
 //----------  Basic  Config---------------------------
 extern u8		DeviceNumberID[13];//="800130100001";	 // 车辆DeviceID	---- 河北天地通用
+
 extern u8       RemoteIP_Dnsr[4]; 
 extern u8		RemoteIP_main[4];//
 extern u16		RemotePort_main;

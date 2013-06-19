@@ -1,9 +1,23 @@
----- Dial_ISP Matches (5 in 2 files) ----
-Device_gsm.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):					     DataDial.Dial_step=Dial_ISP;    
-Device_gsm.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):                       //  Dial_Stage(Dial_ISP);
-Device_gsm.c (bsp\stm32f407vgt6_recdrv\app_712\gsm): 		     case   Dial_ISP:
-Device_gsm.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):		     case Dial_ISP:
-Device_gsm.h (bsp\stm32f407vgt6_recdrv\app_712\gsm):typedef enum DialStage {Dial_DialInit0, Dial_DialInit1, Dial_DialInit2, Dial_DialInit3,Dial_DialInit4,Dial_DialInit5,Dial_DialInit6,Dial_DNSR1,Dial_DNSR2,Dial_DialInit7,Dial_MainLnk,Dial_AuxLnk,Dial_ISP,Dial_Idle} T_Dial_Stage;
----- Dial_ISP Search Errors Encountered (1) ----
-The following 1 files could not be processed:
-D:\TW703_FormalUSE\TJ_JTJ\TJ_Local\RT-Thread_NewBoard-LCD2_gghypt_singleLink\bsp\stm32f407vgt6_RecDrv\JLinkLog.txt : File could not be opened.
+---- sms_ack_data Matches (23 in 1 files) ----
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):	char	sms_ack_data[60];		///短信每个命令包括'#'符的完整内容
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):			memset(sms_ack_data,0,sizeof(sms_ack_data));
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):			memcpy(sms_ack_data,pstrTemp,pstrTempEnd-pstrTemp+1);
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):						Add_SMS_Ack_Content(sms_ack_data,ACKstate);
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):						Add_SMS_Ack_Content(sms_ack_data,ACKstate);
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):						Add_SMS_Ack_Content(sms_ack_data,ACKstate);
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):						Add_SMS_Ack_Content(sms_ack_data,ACKstate);
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):					Add_SMS_Ack_Content(sms_ack_data,ACKstate);
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):					Add_SMS_Ack_Content(sms_ack_data,ACKstate);
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):						Add_SMS_Ack_Content(sms_ack_data,ACKstate);
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):						Add_SMS_Ack_Content(sms_ack_data,ACKstate);
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):					   Add_SMS_Ack_Content(sms_ack_data,ACKstate);
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):				    Add_SMS_Ack_Content(sms_ack_data,ACKstate);
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):				      Add_SMS_Ack_Content(sms_ack_data,ACKstate);	  
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):					   Add_SMS_Ack_Content(sms_ack_data,ACKstate);				 
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):					Add_SMS_Ack_Content(sms_ack_data,ACKstate);	    
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):				    Add_SMS_Ack_Content(sms_ack_data,ACKstate);	
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):				     Add_SMS_Ack_Content(sms_ack_data,ACKstate);		  
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):				    Add_SMS_Ack_Content(sms_ack_data,ACKstate);	
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):				    Add_SMS_Ack_Content(sms_ack_data,ACKstate);		 
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):					Add_SMS_Ack_Content(sms_ack_data,ACKstate);
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):				  	Add_SMS_Ack_Content(sms_ack_data,ACKstate);

@@ -16,6 +16,8 @@
 #include "math.h"
 #include "stdarg.h"
 #include "string.h"
+#include "SMS.h"
+
 
 
 #define    ROUTE_DIS_Default            0x3F000000
@@ -8048,5 +8050,106 @@ void  JT808_Related_Save_Process(void)
 	 //--------------------------------------------------------------
 
 }
+
+/*
+    打印输出 HEX 信息，Descrip : 描述信息 ，instr :打印信息， inlen: 打印长度
+*/
+void OutPrint_HEX(u8 * Descrip, u8 *instr, u16 inlen )
+{
+    u32  i=0;
+     rt_kprintf("\r\n %s:",Descrip);
+     for( i=0;i<inlen;i++)
+          rt_kprintf("%2X ",instr[i]); 
+     rt_kprintf("\r\n");
+}
+
+
+void  dur(u8 *content)
+{
+  sscanf(content, "%d", (u32*)&Current_SD_Duration);
+  rt_kprintf("\r\n 手动设置上报时间间隔 %d s\r\n",Current_SD_Duration);
+  
+       JT808Conf_struct.DURATION.Default_Dur=Current_SD_Duration;
+        Api_Config_Recwrite_Large(jt808,0,(u8*)&JT808Conf_struct,sizeof(JT808Conf_struct));
+}
+FINSH_FUNCTION_EXPORT(dur, dur);  
+
+
+
+void handsms(u8 *instr)
+{    
+    memset(SMS_Service.SMS_sd_Content,0,sizeof(SMS_Service.SMS_sd_Content)); 
+    memcpy(SMS_Service.SMS_sd_Content,instr,strlen(instr));  
+    SMS_Service.SMS_sendFlag=1;	  
+    rt_kprintf("手动发送:%s",SMS_Service.SMS_sd_Content);    
+}
+FINSH_FUNCTION_EXPORT(handsms, handsms);  
+
+
+void driver_name(u8 *instr)
+{   
+    memset(JT808Conf_struct.Driver_Info.DriveName,0,sizeof(JT808Conf_struct.Driver_Info.DriveName)); 
+	memcpy(JT808Conf_struct.Driver_Info.DriveName,instr,strlen(instr)); 
+    Api_Config_Recwrite_Large(jt808,0,(u8*)&JT808Conf_struct,sizeof(JT808Conf_struct));		
+}
+FINSH_FUNCTION_EXPORT(driver_name, set_driver_name );   
+
+
+
+void chepai(u8 *instr)
+{    
+    memset(JT808Conf_struct.Vechicle_Info.Vech_Num,0,sizeof(JT808Conf_struct.Vechicle_Info.Vech_Num));
+    memcpy(JT808Conf_struct.Vechicle_Info.Vech_Num,instr,8); 
+    Api_Config_Recwrite_Large(jt808,0,(u8*)&JT808Conf_struct,sizeof(JT808Conf_struct));  
+}
+FINSH_FUNCTION_EXPORT(chepai, set_chepai);   
+
+void  vin_set(u8 *instr)
+{
+	 //车辆VIN
+	memset(JT808Conf_struct.Vechicle_Info.Vech_VIN,0,sizeof(JT808Conf_struct.Vechicle_Info.Vech_VIN));
+	memcpy(JT808Conf_struct.Vechicle_Info.Vech_VIN,instr,strlen(instr)); 
+	Api_Config_Recwrite_Large(jt808,0,(u8*)&JT808Conf_struct,sizeof(JT808Conf_struct));
+       rt_kprintf("\r\n 手动设置vin:%s \r\n",instr); 
+
+}
+FINSH_FUNCTION_EXPORT(vin_set, vin_set );    
+
+void  current(void)
+{
+    PositionSD_Enable();
+    Current_UDP_sd=1;
+
+}
+FINSH_FUNCTION_EXPORT(current, current );    
+
+
+void  link_mode(u8 *instr)
+{
+   if(instr[0]=='1')
+   {
+      JT808Conf_struct.Link_Frist_Mode=1;
+	   rt_kprintf("\r\n Mainlink:%s \r\n",instr); 
+   }	  
+   else
+   if(instr[0]=='0')
+   {
+   	   JT808Conf_struct.Link_Frist_Mode=0;
+       rt_kprintf("\r\n DNSR :%s \r\n",instr);  
+   }
+
+  
+   Api_Config_Recwrite_Large(jt808,0,(u8*)&JT808Conf_struct,sizeof(JT808Conf_struct));	 
+
+}
+FINSH_FUNCTION_EXPORT(link_mode, link_mode );    
+
+void  redial(void)
+{
+      DataLink_EndFlag=1; //AT_End();   
+        rt_kprintf("\r\n Redial\r\n");      
+}
+FINSH_FUNCTION_EXPORT(redial, redial);
+
 
 // C.  Module

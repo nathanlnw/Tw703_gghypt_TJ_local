@@ -821,6 +821,26 @@
               <FileType>5</FileType>
               <FilePath>.\app_712\gsm\Device_gsm.h</FilePath>
             </File>
+            <File>
+              <FileName>SMS.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\app_712\gsm\SMS.c</FilePath>
+            </File>
+            <File>
+              <FileName>SMS.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\app_712\gsm\SMS.h</FilePath>
+            </File>
+            <File>
+              <FileName>SMS_PDU.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\app_712\gsm\SMS_PDU.c</FilePath>
+            </File>
+            <File>
+              <FileName>SMS_PDU.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\app_712\gsm\SMS_PDU.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

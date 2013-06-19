@@ -16,7 +16,9 @@
 #include  <stdlib.h>
 #include  <stdarg.h>
 #include "App_moduleConfig.h" 
-
+#include "App_gsm.h"
+#include "SMS_PDU.h"
+#include "SMS.h"
 
 #define GSM_GPIO			GPIOC
 #define GSM_TX_PIN			GPIO_Pin_10
@@ -47,10 +49,11 @@ flash char  CommAT_Str8[]="AT%NFO=1,3,0\r\n";//;"AT%RING=1\r\n";   //开启铃音
 flash char  CommAT_Str9[]="AT%VLB=1\r\n";//ATI
 flash char  CommAT_Str10[]="AT%NFW=1\r\n";    //   保存音频设置
 flash char  CommAT_Str11[]="AT+CGMR\r\n";//"AT%RECFDEL\r\n";//"AT\r\n"; //   
-flash char  CommAT_Str12[]="AT+CMGF=1\r\n"; 
+flash char  CommAT_Str12[]="AT+CMGF=0\r\n"; 		///PDU模式
 flash char  CommAT_Str13[]="AT+CPMS=\"SM\",\"SM\",\"SM\"\r\n";   
-flash char  CommAT_Str14[]="AT+CNMI=2,1\r\n"; 
+flash char  CommAT_Str14[]="AT+CNMI=1,2\r\n"; 		///直接将短信输出
 flash char  CommAT_Str15[]="AT+CMGD=1,4\r\n"; 
+flash char  CommAT_Str16[]="AT+CSCA?\r\n"; 
 
 
 
@@ -1056,7 +1059,7 @@ void  ISP_Timer(void)
 		   if(Ready_dial_counter2>5)  
                 	{
                          Ready_dial_counter2=0;
-					     DataDial.Dial_step=Dial_ISP;    
+			    //DataDial.Dial_step=Dial_ISP;    
 					     DataDial.Dial_ON=enable;
 				
                        //  Dial_Stage(Dial_ISP);
@@ -1296,11 +1299,16 @@ void GSM_Module_TotalInitial(void)
 					 rt_kprintf(CommAT_Str15);   
 					 CommAT.Initial_step++;
 					 break; 	
-			 case 15://  信号强度 /		
+		        case 15:
+					 rt_hw_gsm_output(CommAT_Str16); 
+					 rt_kprintf(CommAT_Str16);   
+					 CommAT.Initial_step++;
+					 break; 			 
+			 case 16://  信号强度 /		
 			                rt_hw_gsm_output(Signal_Intensity_str); 
 					 rt_kprintf(Signal_Intensity_str);    
 					 break;
-	               case 16:/*开始能拨号*/ 
+	               case 17:/*开始能拨号*/ 
 					 rt_kprintf("AT_Start\r\n");   
 					 CommAT.Initial_step=0; 
 					 CommAT.Total_initial=0;   
@@ -1556,8 +1564,8 @@ static void GSM_Process(u8 *instr, u16 len)
 		u8	error = false;
 		u8	failed = false; 
 		u8	connect = false;   		
-        u16  i=0;//,len=0;//j=0;
-       //  u8 reg_str[80]; 
+        u16  i=0,j=0,q=0;//,len=0;//j=0;
+         u8 reg_str[80]; 
 //----------------------  Debug -------------------------		
   // if(DispContent==2)	 
    memset(GSM_rx,0,sizeof((const char*)GSM_rx));
@@ -1589,7 +1597,7 @@ static void GSM_Process(u8 *instr, u16 len)
 	      goto RXOVER; 	 		
       	} 
 
-       if(strncmp((char*)GSM_rx, "%IPDATA:2",9)==0)   // ISP 过来      
+  /*     if(strncmp((char*)GSM_rx, "%IPDATA:2",9)==0)   // ISP 过来      
 	{												   //exam:	%IPDATA:2,16,"6473616466617365"
               for(i=0;i<20;i++)   //  从前20个字节中找第一个"
 		{
@@ -1605,7 +1613,7 @@ static void GSM_Process(u8 *instr, u16 len)
 		//--------------------------------------------------	 
 	         goto RXOVER; 
 	 }	
-	else    
+	else*/    
 	if(strncmp((char*)GSM_rx, "%IPDATA:1",9)==0) // UDP	  有数据过来了
 	{												   //exam:	%IPDATA:1,16,"6473616466617365"
                for(i=0;i<20;i++)   //  从前20个字节中找第一个"
@@ -1629,9 +1637,112 @@ static void GSM_Process(u8 *instr, u16 len)
                  TTS_Play_End();
 		    rt_kprintf("\r\n   TTS  播放完毕\r\n");    		 
 	}
+#ifdef  SMS_ENABLE
+	//--------      SMS  service  related Start  -------------------------------------------
+	//+CMTI: "SM",1            +CMTI: "SM",1
+	if( strncmp( (char*)GSM_rx, "+CMTI: \"SM\",", 12 ) == 0 )
+	{
+		rt_kprintf( "\r\n收到短信:" );
+		j = sscanf( GSM_rx + 12, "%d", &i );
+		if( j )
+		{
+			SMS_Rx_Notice(i);	
+		}
+	}
+	else if( strncmp( (char*)GSM_rx, "+CMT: ", 6 ) == 0 )
+	{
+		if(GSM_rx[6]==',')		///PDU模式
+		{
+			if( RT_EOK == rt_mq_recv( &mq_GSM, (void*)&GSM_RX_BUFF, GSM_TYPEBUF_SIZE, RT_TICK_PER_SECOND ) )    //等待1000ms,实际上就是变长的延时,最长1000ms
+			{
+				memset( GSM_rx, 0, sizeof( GSM_rx ) );
+				memcpy( GSM_rx, GSM_RX_BUFF.gsm_content, GSM_RX_BUFF.gsm_wr );
+				len=GSM_RX_BUFF.gsm_wr;
+
+				SMS_Rx_PDU(GSM_rx,len); 
+			}
+		}
+		else					///TEXT模式
+		{
+			j	= 0;
+			q	= 0;
+			memset( reg_str, 0, sizeof( reg_str ) );
+			for( i = 6; i < len; i++ )
+			{
+				if( ( j == 1 ) && ( GSM_rx[i] != '"' ) )
+				{
+					reg_str[q++] = GSM_rx[i];
+				}
+				if( GSM_rx[i] == '"' )
+				{
+					j++;
+					if(j>1)
+						break;
+				}
+			}
+			//rt_kprintf( "\r\n  短息来源号码:%s \r\n", reg_str );
+			if( RT_EOK == rt_mq_recv( &mq_GSM, (void*)&GSM_RX_BUFF, GSM_TYPEBUF_SIZE, RT_TICK_PER_SECOND ) )    //等待1000ms,实际上就是变长的延时,最长1000ms
+			{
+				memset( GSM_rx, 0, sizeof( GSM_rx ) );
+				memcpy( GSM_rx, GSM_RX_BUFF.gsm_content, GSM_RX_BUFF.gsm_wr );
+				len=GSM_RX_BUFF.gsm_wr;
+				SMS_Rx_Text(GSM_rx,reg_str);
+			}
+		}
+		
+	}
+#ifdef SMS_TYPE_PDU
+	else if( strncmp( (char*)GSM_rx, "+CMGR:", 6 ) == 0 )
+	{
+		if( RT_EOK == rt_mq_recv( &mq_GSM, (void*)&GSM_RX_BUFF, GSM_TYPEBUF_SIZE, RT_TICK_PER_SECOND ) )    //等待1000ms,实际上就是变长的延时,最长1000ms
+		{
+			memset( GSM_rx, 0, sizeof( GSM_rx ) );
+			memcpy( GSM_rx, GSM_RX_BUFF.gsm_content, GSM_RX_BUFF.gsm_wr );
+			len=GSM_RX_BUFF.gsm_wr;
+
+			SMS_Rx_PDU(GSM_rx,len);
+		}
+	}
+#else
+	else if( strncmp( (char*)GSM_rx, "+CMGR:", 6 ) == 0 )
+	{
+		//+CMGR: "REC UNREAD","8613602069191", ,"13/05/16,13:05:29+35"
+		// 获取要返回短息的目的号码
+		j	= 0;
+		q	= 0;
+		memset( reg_str, 0, sizeof( reg_str ) );
+		for( i = 6; i < 50; i++ )
+		{
+			if( ( j == 3 ) && ( GSM_rx[i] != '"' ) )
+			{
+				reg_str[q++] = GSM_rx[i];
+			}
+			if( GSM_rx[i] == '"' )
+			{
+				j++;
+			}
+		}
+		//rt_kprintf( "\r\n  短息来源号码:%s \r\n", reg_str );
+		if( RT_EOK == rt_mq_recv( &mq_GSM, (void*)&GSM_RX_BUFF, GSM_TYPEBUF_SIZE, RT_TICK_PER_SECOND ) )    //等待1000ms,实际上就是变长的延时,最长1000ms
+		{
+			memset( GSM_rx, 0, sizeof( GSM_rx ) );
+			memcpy( GSM_rx, GSM_RX_BUFF.gsm_content, GSM_RX_BUFF.gsm_wr );
+			len=GSM_RX_BUFF.gsm_wr;
+			SMS_Rx_Text(GSM_rx,reg_str);			
+		}
+	}
+#endif
+
+#endif
 	if(strncmp((char*)GSM_rx, "%IPSENDX:1",10)==0)	 // 链路 1  TCP 发送OK  
 	{												   //exam:	%IPSENDX:1,15 
-             Api_cycle_Update();  //  数据发送 ，更新写指针	   
+                //Api_cycle_Update();  //  数据发送 ，更新写指针	   
+                if(Send_Rdy4ok==1)
+		   	{
+		   	    Api_cycle_Update();
+			    Send_Rdy4ok=0;	   
+		   	}
+		  WatchDog_Feed();             		
 	} 
 	else
        if(strncmp((char*)GSM_rx, "%IPCLOSE: 2",11) == 0)// ISP close
@@ -1640,7 +1751,7 @@ static void GSM_Process(u8 *instr, u16 len)
 		rt_kprintf("\r\n");
 		rt_kprintf("%s",GSM_rx); 
 		rt_kprintf("\r\n");
-              #ifdef MULTI_LINK
+           #ifdef MULTI_LINK
 		     TCP2_Connect=0;										   
 		     TCP2_ready_dial=0;  
 		     TCP2_login=0;  
@@ -1767,15 +1878,14 @@ static void GSM_Process(u8 *instr, u16 len)
 		    ok = true;
 		  if(DispContent)	
 			   rt_kprintf(" OK\r\n");     			
-               			 //------------------------------------  
-		   if(Send_Rdy4ok==1)
-		   	{
-		   	    Api_cycle_Update();
-		         //  rt_kprintf("\r\n Updata cycle  status !! ----reg for debug\r\n");
-			    Send_Rdy4ok=0;	   
-		   	}		   
 			//-------------------------------------------
-		  VOC_REC_filedel();	
+		  VOC_REC_filedel();	 
+		  //   Online  state  OK  ,clear Error Counter
+                  if(DataLink_Status())       
+	          {
+	                Online_error_counter=0; // clear 
+                 }
+	        		
         }
 	else
 	if (strcmp((char*)GSM_rx, "NO DIALTONE") == 0) failed = true;
@@ -2009,11 +2119,21 @@ RXOVER:
 		case Dial_DialInit5	:	if (ok)  Dial_Stage(Dial_DialInit6);
 								break;
 		case Dial_DialInit6	:	if (ok)  
-			                                   #ifdef MULTI_LINK
-			                                         Dial_Stage(Dial_DNSR1);   // 多连接
+			                  /*
+                                                            初始化完成后，选择首次连接的方式
+			                                */
+			                   if(JT808Conf_struct.Link_Frist_Mode==1)
+							   	      Dial_Stage(Dial_MainLnk);
+							   else
+							   	      Dial_Stage(Dial_DNSR1); 
+
+		                       /*
+					                    #ifdef MULTI_LINK
+					                          Dial_Stage(Dial_DNSR1);   // 多连接  
 								#else
 								      Dial_Stage(Dial_MainLnk);
-		             #endif
+						             #endif
+						             */
 								break;						
 		case Dial_DNSR1	:	if (ok)
 			                           {
@@ -2113,12 +2233,34 @@ void  IMSIcode_Get(void)
 }
 
  
+ void Rx_in(u8* instr)
+ {
+	 u16  inlen=0;
+ 
+	   if(strncmp(instr,"can1",4)==0)
+		 {
+			Get_GSM_HexData("7E8103003B013601300001864F060000010004000001F40000010102000A0000010204000000000000010302000000000110080000000058FFD11700000111080000006458FFD017EA7E",148,0);
+			OutPrint_HEX("模拟1", GSM_HEX, GSM_HEX_len); 
+ 
+	  }
+		 else
+		 {
+			  inlen=strlen((const char*)instr);
+			  Get_GSM_HexData(instr,inlen,0);  
+			   OutPrint_HEX("模拟", GSM_HEX, GSM_HEX_len); 
+		 }	  
+ 
+ }
+ FINSH_FUNCTION_EXPORT(Rx_in, Rx_in);
 
-void AT(u8 *str)
+void AT(char *str)
 {
-       rt_hw_gsm_output((const char*)str);     
+	rt_hw_gsm_output((const char*)str);     
+	rt_hw_gsm_output("\r\n"); 
+	rt_kprintf("%s\r\n",str);
+	   
 } 
-FINSH_FUNCTION_EXPORT(AT, gsm_ATcmd);
+FINSH_FUNCTION_EXPORT(AT, AT);
 
 
 
