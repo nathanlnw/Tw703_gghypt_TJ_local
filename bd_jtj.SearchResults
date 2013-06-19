@@ -1,23 +1,7 @@
----- sms_ack_data Matches (23 in 1 files) ----
-SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):	char	sms_ack_data[60];		///短信每个命令包括'#'符的完整内容
-SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):			memset(sms_ack_data,0,sizeof(sms_ack_data));
-SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):			memcpy(sms_ack_data,pstrTemp,pstrTempEnd-pstrTemp+1);
-SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):						Add_SMS_Ack_Content(sms_ack_data,ACKstate);
-SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):						Add_SMS_Ack_Content(sms_ack_data,ACKstate);
-SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):						Add_SMS_Ack_Content(sms_ack_data,ACKstate);
-SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):						Add_SMS_Ack_Content(sms_ack_data,ACKstate);
-SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):					Add_SMS_Ack_Content(sms_ack_data,ACKstate);
-SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):					Add_SMS_Ack_Content(sms_ack_data,ACKstate);
-SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):						Add_SMS_Ack_Content(sms_ack_data,ACKstate);
-SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):						Add_SMS_Ack_Content(sms_ack_data,ACKstate);
-SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):					   Add_SMS_Ack_Content(sms_ack_data,ACKstate);
-SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):				    Add_SMS_Ack_Content(sms_ack_data,ACKstate);
-SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):				      Add_SMS_Ack_Content(sms_ack_data,ACKstate);	  
-SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):					   Add_SMS_Ack_Content(sms_ack_data,ACKstate);				 
-SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):					Add_SMS_Ack_Content(sms_ack_data,ACKstate);	    
-SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):				    Add_SMS_Ack_Content(sms_ack_data,ACKstate);	
-SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):				     Add_SMS_Ack_Content(sms_ack_data,ACKstate);		  
-SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):				    Add_SMS_Ack_Content(sms_ack_data,ACKstate);	
-SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):				    Add_SMS_Ack_Content(sms_ack_data,ACKstate);		 
-SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):					Add_SMS_Ack_Content(sms_ack_data,ACKstate);
-SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):				  	Add_SMS_Ack_Content(sms_ack_data,ACKstate);
+---- SMS_Service.SMS_come Matches (6 in 2 files) ----
+Protocol_808.c (bsp\stm32f407vgt6_recdrv\app_712\protocol_808):	SMS_Service.SMS_come=1;
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):	 if(SMS_Service.SMS_come==1)
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):			 SMS_Service.SMS_come=0;
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):		if(SMS_Service.SMS_come==1)
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):	SMS_Service.SMS_come		= 0;
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):	SMS_Service.SMS_come		= 1;

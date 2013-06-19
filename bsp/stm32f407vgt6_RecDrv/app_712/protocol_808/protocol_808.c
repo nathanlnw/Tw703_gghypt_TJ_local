@@ -8080,7 +8080,8 @@ void handsms(u8 *instr)
 {    
     memset(SMS_Service.SMS_sd_Content,0,sizeof(SMS_Service.SMS_sd_Content)); 
     memcpy(SMS_Service.SMS_sd_Content,instr,strlen(instr));  
-    SMS_Service.SMS_sendFlag=1;	  
+    SMS_Service.SMS_sendFlag=1;	
+	SMS_Service.SMS_come=1;
     rt_kprintf(" ÷∂Ø∑¢ÀÕ:%s",SMS_Service.SMS_sd_Content);    
 }
 FINSH_FUNCTION_EXPORT(handsms, handsms);  
