@@ -8082,7 +8082,7 @@ void handsms(u8 *instr)
     memcpy(SMS_Service.SMS_sd_Content,instr,strlen(instr));  
     SMS_Service.SMS_sendFlag=1;	
 	SMS_Service.SMS_come=1;
-    rt_kprintf("返強窟僕:%s",SMS_Service.SMS_sd_Content);    
+    rt_kprintf("返強窟僕:  %s",SMS_Service.SMS_sd_Content);    
 }
 FINSH_FUNCTION_EXPORT(handsms, handsms);  
 
