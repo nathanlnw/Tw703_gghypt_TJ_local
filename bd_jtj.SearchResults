@@ -1,1 +1,8 @@
----- SMS_send_process Matches (0 in 0 files) ----
+---- JT808Conf_struct.Link_Frist_Mode Matches (7 in 4 files) ----
+Device_gsm.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):			                   if(JT808Conf_struct.Link_Frist_Mode==1)
+Protocol_808.c (bsp\stm32f407vgt6_recdrv\app_712\protocol_808):      JT808Conf_struct.Link_Frist_Mode=1;
+Protocol_808.c (bsp\stm32f407vgt6_recdrv\app_712\protocol_808):   	   JT808Conf_struct.Link_Frist_Mode=0;
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):						JT808Conf_struct.Link_Frist_Mode=u16Temp;  
+SMS.c (bsp\stm32f407vgt6_recdrv\app_712\gsm):		        		rt_kprintf("\r\n 首次连接方式 %s ,%d \r\n",sms_content,JT808Conf_struct.Link_Frist_Mode);          
+Sys_config.c (bsp\stm32f407vgt6_recdrv\app_712\protocol_808):				JT808Conf_struct.Link_Frist_Mode=1; //     0  : dnsr first     1: mainlink  first
+Sys_config.c (bsp\stm32f407vgt6_recdrv\app_712\protocol_808):		 if(JT808Conf_struct.Link_Frist_Mode==1)
