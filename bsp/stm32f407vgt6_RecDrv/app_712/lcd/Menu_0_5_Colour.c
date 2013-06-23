@@ -5,7 +5,7 @@ u8 comfirmation_flag=0;
 u8 col_screen=0;
 u8 CarBrandCol_Cou=1;
 
-unsigned char car_col[13]={"车牌颜色:蓝色"}; 
+unsigned char car_col[13]={"车牌颜色:黄色"}; 
 
 void car_col_fun(u8 par)
 {                                                      
@@ -36,7 +36,7 @@ static void show(void)
 {
 CounterBack=0;
 col_screen=1;
-car_col_fun(1);
+car_col_fun(2);// old 1
 }
 
 

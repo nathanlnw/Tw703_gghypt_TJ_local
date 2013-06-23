@@ -728,11 +728,6 @@ void  DataLink_DNSR2_Set(u8* Dns_str,u8 DebugOUT)
 #endif
 }
 
- void  Total_Satus_Initial(void)
-{
-     Gsm_RegisterInit();   
-} 
-
 
 /* write one character to serial, must not trigger interrupt */
  void rt_hw_gsm_putc(const char c)
@@ -1783,7 +1778,7 @@ static void GSM_Process(u8 *instr, u16 len)
 		 {	
 		    rt_hw_gsm_output("ATH\r\n"); 		
 			DataLink_EndFlag=1; 
-			DEV_Login.Operate_enable=1;//重新鉴权
+			//DEV_Login.Operate_enable=1;//重新鉴权
 		 }
 		 
 	}	
@@ -2140,7 +2135,7 @@ RXOVER:
                                                          Dial_Stage(Dial_DNSR2);
 			                           }   
 								break;		
-	         case Dial_DNSR2	:	if (ok)
+	    case Dial_DNSR2	:	if (ok)
 			                           {
                                                           Dial_Stage(Dial_MainLnk); 
 			                           }   
@@ -2159,14 +2154,14 @@ RXOVER:
 								                rt_kprintf("\r\n Aux 连接成功TCP---\r\n");
 								   //     1.   登陆成功后相关操作	 
 								    // <--  注册状态
-								            if(1==JT808Conf_struct.Regsiter_Status)  
+								        if(1==JT808Conf_struct.Regsiter_Status)  
 								                 DEV_Login.Operate_enable=1;   			 						
 									 
 								   // connect = true;
 								         //  -----  Data  Dial Related ------
 									    if((DataDial.Dial_ON)&&(DataDial.Dial_step<Max_DIALSTEP)) 
 									    	{
-							                            Dial_Stage(Dial_Idle);
+							                   Dial_Stage(Dial_Idle);
 										       DataDial.Dial_step_Retry=0;
 										       DataDial.Dial_step_RetryTimer=0;  			
 									    	}

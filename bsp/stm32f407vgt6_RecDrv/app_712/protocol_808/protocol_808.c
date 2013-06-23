@@ -411,9 +411,9 @@ void delay_ms(u16 j )
 {  	
   unsigned short int crc_file=0;
 // 	  u8 i=0;
-            if(DEV_Login.Operate_enable !=2) 
+            if(DEV_Login.Operate_enable==1)   // !=2   
 			 	{                  
-				  if(1==DEV_Login.Enable_sd)
+				  if((1==DEV_Login.Enable_sd)&&(0==DEV_regist.Enable_sd))
 					  {
 						Stuff_DevLogin_0102H();   //  鉴权   ==2 时鉴权完毕
 						DEV_Login.Enable_sd=0;
@@ -437,9 +437,11 @@ void delay_ms(u16 j )
                {									
                   Stuff_RegisterPacket_0100H(0);   // 注册
                    JT808Conf_struct.Msg_Float_ID=0;
-                  Api_Config_Recwrite_Large(jt808,0,(u8*)&JT808Conf_struct,sizeof(JT808Conf_struct));   
-		    DEV_regist.Enable_sd=0;
-		    JT808Conf_struct.Regsiter_Status=1; //标注注册，但不存储		  
+                  Api_Config_Recwrite_Large(jt808,0,(u8*)&JT808Conf_struct,sizeof(JT808Conf_struct)); 
+				  DEV_Login.Sd_counter=0;
+				  DEV_Login.Operate_enable=0;
+		          DEV_regist.Enable_sd=0;
+		          //  JT808Conf_struct.Regsiter_Status=1; //标注注册，但不存储		  
                 return true;
                }
             if(1==DEV_regist.DeRegst_sd)
@@ -448,7 +450,7 @@ void delay_ms(u16 j )
                   DEV_regist.DeRegst_sd=0;		     		  
 				  return true;
             	}
-            if((1==JT808Conf_struct.DURATION.Heart_SDFlag)&&(DataLink_Status())&&(SleepState==0)) //  心跳
+            if((1==JT808Conf_struct.DURATION.Heart_SDFlag)&&(DataLink_Status())&&(SleepState==0)&&(DEV_Login.Operate_enable==2)) //  心跳
             	{
                   Stuff_DeviceHeartPacket_0002H();
                   JT808Conf_struct.DURATION.Heart_SDFlag=0;
@@ -1750,29 +1752,30 @@ u8  Stuff_RegisterPacket_0100H(u8  LinkNum)
   // 2. content 
     //  province ID
     Original_info[Original_info_Wr++]=0x00;//(u8)(JT808Conf_struct.Vechicle_Info.Dev_ProvinceID>>8);
-    Original_info[Original_info_Wr++]=10;;//(u8)JT808Conf_struct.Vechicle_Info.Dev_ProvinceID;
+    Original_info[Original_info_Wr++]=10;;//(u8)JT808Conf_struct.Vechicle_Info.Dev_ProvinceID;  // 天津12
     //  county  ID
     Original_info[Original_info_Wr++]=(u8)(1010>>8);
-    Original_info[Original_info_Wr++]=(u8)1010;   
+    Original_info[Original_info_Wr++]=(u8)1010;    
 	//  product Name	
-    memcpy(Original_info+Original_info_Wr,"70103",5);  //北京中斗  70104
+	//  product Name	
+    memcpy(Original_info+Original_info_Wr,"70420",5);   //北京中斗  70104      70523     70218
     Original_info_Wr+=5;
 	//  终端型号 20 Bytes      -- 补充协议里做更改
-	memcpy(Original_info+Original_info_Wr,"HVT100BD3",9);   //ZD-V01H  HVT100BD1
-    Original_info_Wr+=9;      
-    for(i=0;i<11;i++)
-	 Original_info[Original_info_Wr++]=0x00;	 
+	memcpy(Original_info+Original_info_Wr,"TW703",5);   //ZD-V01H  HVT100BD1   CM-10A-BD  YW3000-YM/MGB
+    Original_info_Wr+=5;       
+    for(i=0;i<15;i++)  
+	 Original_info[Original_info_Wr++]=0x00;    	  
     //  终端ID   7 Bytes    ,    
-    memcpy(Original_info+Original_info_Wr,IMSI_CODE+8,7);     
+    memcpy(Original_info+Original_info_Wr,DeviceNumberID+5,7);        
     Original_info_Wr+=7;  
 	//  车牌颜色  
-	Original_info[Original_info_Wr++]=2;//JT808Conf_struct.Vechicle_Info.Dev_Color;
+	Original_info[Original_info_Wr++]=2; //JT808Conf_struct.Vechicle_Info.Dev_Color;
 	
 	if(JT808Conf_struct.Vechicle_Info.Dev_Color!=0)
 	{
 		//  车牌
-		memcpy(Original_info+Original_info_Wr,JT808Conf_struct.Vechicle_Info.Vech_Num,13);  
-		Original_info_Wr+=13;
+		memcpy(Original_info+Original_info_Wr,JT808Conf_struct.Vechicle_Info.Vech_Num,strlen((const char*)(JT808Conf_struct.Vechicle_Info.Vech_Num)));//13);  
+		Original_info_Wr+=strlen((const char*)(JT808Conf_struct.Vechicle_Info.Vech_Num));
 	}
 	else
 	{
@@ -1783,8 +1786,6 @@ u8  Stuff_RegisterPacket_0100H(u8  LinkNum)
     }
 
  
- //  3. Send 
-  Protocol_End(Packet_Normal,LinkNum);   
   if(DispContent)
   {      
        rt_kprintf("\r\n	SEND Reigster Packet! \r\n");  
@@ -5213,7 +5214,7 @@ void TCP_RX_Process( u8  LinkNum)  //  ---- 808  标准协议
 							           memcpy(Reg_buf,JT808Conf_struct.ConfirmCode,20);
 									   JT808Conf_struct.Regsiter_Status=1; 
 							           Reg_buf[20]=JT808Conf_struct.Regsiter_Status;
-                                Api_Config_Recwrite_Large(jt808,0,(u8*)&JT808Conf_struct,sizeof(JT808Conf_struct));   
+                                       Api_Config_Recwrite_Large(jt808,0,(u8*)&JT808Conf_struct,sizeof(JT808Conf_struct));   
 									   rt_kprintf("鉴权码: %s\r\n		   鉴权码长度: %d\r\n",JT808Conf_struct.ConfirmCode,strlen((const char*)JT808Conf_struct.ConfirmCode)); 
                                        //-------- 开始鉴权 ------
 									   DEV_Login.Operate_enable=1;  
@@ -8151,6 +8152,20 @@ void  redial(void)
         rt_kprintf("\r\n Redial\r\n");      
 }
 FINSH_FUNCTION_EXPORT(redial, redial);
+
+void  port(u8 *instr)
+{
+   		   sscanf(instr, "%d", (u32*)&RemotePort_main);  
+		   rt_kprintf("\r\n设置主端口=%d!",RemotePort_main);
+		   SysConf_struct.Port_main=RemotePort_main;
+		   Api_Config_write(config,ID_CONF_SYS,(u8*)&SysConf_struct,sizeof(SysConf_struct));
+		   
+		   DataLink_MainSocket_set(RemoteIP_main,RemotePort_main,1);
+			DataLink_EndFlag=1; //AT_End();  
+
+}
+FINSH_FUNCTION_EXPORT(port, port); 
+
 
 
 // C.  Module

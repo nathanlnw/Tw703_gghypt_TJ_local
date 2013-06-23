@@ -29,7 +29,7 @@ u8      DeviceNumberID[13];//="800130100001";    // ³µÁ¾DeviceID    ---- ºÓ±±Ììµ
 
 u8          RemoteIP_Dnsr[4]={255,255,255,255}; 
 u8		RemoteIP_main[4]={60,28,50,210};//{125,38,185,88};//{113,31,28,101 };//{113,31,92,200};//Ìì½ò{60,28,50,210}; ºÓ±±ÌìµØÍ¨ 113,31,28,100                        
-u16		RemotePort_main= 9131;//Ìì½ò9131;   ºÓ±±ÌìµØÍ¨ 8201             //test tianjin    
+u16		RemotePort_main= 7008;//Ìì½ò9131;   ºÓ±±ÌìµØÍ¨ 8201             //test tianjin    
 u8		RemoteIP_aux[4]={60,28,50,210};    //{60,28,50,210}
 u16		RemotePort_aux=4000; 
 //      Link2  Related 
@@ -329,7 +329,7 @@ void  JT808_Vehicleinfo_Init(void)
 	memset((u8*)&JT808Conf_struct.Vechicle_Info,0,sizeof(JT808Conf_struct.Vechicle_Info));
 	//-----------------------------------------------------------------------
 	memcpy(JT808Conf_struct.Vechicle_Info.Vech_VIN,"00000000000000000",17);
-	memcpy(JT808Conf_struct.Vechicle_Info.Vech_Num,"½òTST002",8);        
+	memcpy(JT808Conf_struct.Vechicle_Info.Vech_Num,"½òA00000",8);        
 	memcpy(JT808Conf_struct.Vechicle_Info.Vech_Type,"Î´ÖªÐÍ",6);       
 	JT808Conf_struct.Vechicle_Info.Dev_ProvinceID=0;  // Ä¬ÈÏÊ¡ID   0
 	JT808Conf_struct.Vechicle_Info.Dev_CityID=0;      // Ä¬ÈÏÊÐID   0		
@@ -353,7 +353,7 @@ u8     JT808_Conf_init( void )
 		   memset((u8*)JT808Conf_struct.ConfirmCode,0,sizeof(JT808Conf_struct.ConfirmCode));
 		   memcpy((u8*)JT808Conf_struct.ConfirmCode,"012345\x00",7); //  ¼øÈ¨Âë
 
-		   JT808Conf_struct.Regsiter_Status=0;   //  ×¢²á×´Ì¬
+		   JT808Conf_struct.Regsiter_Status=0;   //  ×¢²á×´Ì¬ 
 
 		   memset((u8*)JT808Conf_struct.LISTEN_Num,0,sizeof(JT808Conf_struct.LISTEN_Num));
 		   memcpy((u8*)JT808Conf_struct.LISTEN_Num,"10086",5); //  ¼àÌýºÅÂë
@@ -386,7 +386,7 @@ u8     JT808_Conf_init( void )
                 JT808Conf_struct.OutGPS_Flag=1;     //  0  Ä¬ÈÏ  1  ½ÓÍâ²¿ÓÐÔ´ÌìÏß 
                 JT808Conf_struct.concuss_step=40;
 				JT808Conf_struct.password_flag=0;//³õ´ÎÎª0£¬ÉèÖÃºÃºóÎª1
-				JT808Conf_struct.Link_Frist_Mode=1; //     0  : dnsr first     1: mainlink  first
+				JT808Conf_struct.Link_Frist_Mode=0; //     0  : dnsr first     1: mainlink  first
 		   JT808_RealTimeLock_Init();   //  ÊµÊ±¸ú×ÙÉèÖÃ	
 
 		    		 
@@ -1550,7 +1550,10 @@ void  idip(u8 *str)
    	    if(strncmp((const char*)str,"clear",5)==0)
    	    	{
                    JT808Conf_struct.Regsiter_Status=0; 
-		     rt_kprintf("     ÊÖ¶¯Çå³ý ¼øÈ¨Âë !\r\n");   		   
+		           rt_kprintf("     ÊÖ¶¯Çå³ý ¼øÈ¨Âë !\r\n");        	     
+			       DEV_Login.Operate_enable=0; 
+				   DEV_Login.Enable_sd=0; 
+				   DEV_Login.Sd_counter=0;
    	    	}
 		else
 	      {
@@ -1562,7 +1565,7 @@ void  idip(u8 *str)
 		}  
 		    memset(Reg_buf,0,sizeof(Reg_buf));
 		    memcpy(Reg_buf,JT808Conf_struct.ConfirmCode,20);
-		    Reg_buf[20]=JT808Conf_struct.Regsiter_Status;			
+		    Reg_buf[20]=JT808Conf_struct.Regsiter_Status;		
                   Api_Config_Recwrite_Large(jt808,0,(u8*)&JT808Conf_struct,sizeof(JT808Conf_struct));   
       }
 }

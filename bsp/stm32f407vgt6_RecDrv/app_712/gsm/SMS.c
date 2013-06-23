@@ -259,7 +259,7 @@ void   SMS_protocol (u8 *instr,u16 len, u8  ACKstate)   //  ACKstate
 						{
 						rt_kprintf("\r\n设置主域名 !");
 						memset(DomainNameStr,0,sizeof(DomainNameStr));					  
-						memset(SysConf_struct.DNSR,0,sizeof(DomainNameStr));
+						memset(SysConf_struct.DNSR,0,sizeof(DomainNameStr));  
 						memcpy(DomainNameStr,(char*)pstrTempStart,cmdLen);
 						memcpy(SysConf_struct.DNSR,(char*)pstrTempStart,cmdLen);
 						Api_Config_write(config,ID_CONF_SYS,(u8*)&SysConf_struct,sizeof(SysConf_struct));
@@ -272,6 +272,11 @@ void   SMS_protocol (u8 *instr,u16 len, u8  ACKstate)   //  ACKstate
 						//------- add on 2013-6-6
 						if(ACKstate==SMS_ACK_none)
 						     SD_ACKflag.f_CentreCMDack_0001H=2 ;//DataLink_EndFlag=1; //AT_End(); 先返回结果再挂断  
+						else
+							   DataLink_EndFlag=1; //AT_End();  
+							   
+                         //--------    清除鉴权码 -------------------
+					     idip("clear");		   
 
 						}
 					else if(pstrTemp[4]=='2')	///备用域名
@@ -313,6 +318,11 @@ void   SMS_protocol (u8 *instr,u16 len, u8  ACKstate)   //  ACKstate
 						//------- add on 2013-6-6
 						if(ACKstate==SMS_ACK_none)
 						     SD_ACKflag.f_CentreCMDack_0001H=2 ;//DataLink_EndFlag=1; //AT_End(); 先返回结果再挂断  
+						else
+							  DataLink_EndFlag=1; //AT_End();  
+
+						 //--------    清除鉴权码 -------------------
+					     idip("clear");		   	  
 
 						}
 					else if(pstrTemp[4]=='2')	///备用端口
@@ -360,6 +370,10 @@ void   SMS_protocol (u8 *instr,u16 len, u8  ACKstate)   //  ACKstate
 					DF_WriteFlashSector(DF_DeviceID_offset,0,DeviceNumberID,13); 
 					///
 					Add_SMS_Ack_Content(sms_ack_data,ACKstate);
+
+					 //--------    清除鉴权码 -------------------
+					     idip("clear");		     
+					
 					}
 				else
 					{
@@ -388,6 +402,11 @@ void   SMS_protocol (u8 *instr,u16 len, u8  ACKstate)   //  ACKstate
 					     //------- add on 2013-6-6
 						if(ACKstate==SMS_ACK_none)
 						      SD_ACKflag.f_CentreCMDack_0001H=2 ;//DataLink_EndFlag=1; //AT_End(); 先返回结果再挂断  
+						else
+							   DataLink_EndFlag=1;
+
+						 //--------    清除鉴权码 -------------------
+					     idip("clear");		   
 
 						}
 					else if(pstrTemp[2]=='2')
@@ -504,10 +523,13 @@ void   SMS_protocol (u8 *instr,u16 len, u8  ACKstate)   //  ACKstate
 				    rt_memcpy(JT808Conf_struct.Vechicle_Info.Vech_Num,sms_content,strlen(sms_content));
 					Api_Config_Recwrite_Large(jt808,0,(u8*)&JT808Conf_struct,sizeof(JT808Conf_struct));
 					Add_SMS_Ack_Content(sms_ack_data,ACKstate);
+
+					 //--------    清除鉴权码 -------------------
+					     idip("clear");		   
 				}
-			else if(strncmp(pstrTemp,"COLOR",5)==0)
+			else if(strncmp(pstrTemp,"COLOUR",6)==0)
 				{
-				j=sscanf(sms_content,"%d",&u16Temp);
+				     j=sscanf(sms_content,"%d",&u16Temp);
 					if(j)
 					{
 						
@@ -517,6 +539,27 @@ void   SMS_protocol (u8 *instr,u16 len, u8  ACKstate)   //  ACKstate
 				  	Add_SMS_Ack_Content(sms_ack_data,ACKstate);
 					}
 				}
+			else if(strncmp(pstrTemp,"CONNECT",6)==0)
+				{
+				    j=sscanf(sms_content,"%d",&u16Temp);
+					if(j)
+					{
+						
+						JT808Conf_struct.Link_Frist_Mode=u16Temp;  
+		        		rt_kprintf("\r\n 首次连接方式 %s ,%d \r\n",sms_content,JT808Conf_struct.Link_Frist_Mode);          
+		        		Api_Config_Recwrite_Large(jt808,0,(u8*)&JT808Conf_struct,sizeof(JT808Conf_struct));
+					  	Add_SMS_Ack_Content(sms_ack_data,ACKstate);  
+						 //--------    清除鉴权码 -------------------
+					     idip("clear");		   
+					} 
+				}
+           else if(strncmp(pstrTemp,"CLEARREGIST",11)==0)
+           	    {
+                     //--------    清除鉴权码 -------------------
+					     idip("clear");		
+                     DEV_regist.Enable_sd=1; // set 发送注册标志位
+			         DataLink_EndFlag=1; 
+           	    }
 			else												
 				{
 				;

@@ -259,6 +259,7 @@ typedef struct _DevLOGIN
 {
   u8  Operate_enable;  // 使能开始操作鉴权操作   1 :enable  0: idle
   u8  Sd_counter;      // 定时发送计数器
+  u8  Sd_times;        // 发送次数计数器  
   u8  Enable_sd;       // 使能发送鉴权信息
 }DevLOGIN;
 //------- 超速报警 -------

@@ -209,7 +209,7 @@ static rt_err_t   Device_GSM_init( rt_device_t dev )
       //    一. ---------  GSM  Hardware  initial  ---------------------
 	       rt_hw_gsm_init();  
        //    三.   GSM 状态寄存器初始化
-             Gsm_RegisterInit();   //  init register states    ,then  it  will  power on  the module  
+         //    Gsm_RegisterInit();   //  init register states    ,then  it  will  power on  the module  
 	      return RT_EOK;
 }
 

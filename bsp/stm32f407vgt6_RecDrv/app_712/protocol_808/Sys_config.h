@@ -124,7 +124,7 @@
 
 //------------------------------------------------------------------------------
 #define   SOFTWARE_VER     0x0001
-#define   SYSID            0x0363
+#define   SYSID            0x0510
                                 /*        
                                                         0x0000   -----   0x00FF  生产和研发用
                                                         0x0100   -----   0x0FFF  产品出货用
@@ -328,6 +328,7 @@ extern void DefaultConfig(void);
 extern void RstWrite_ACConoff_counter(void);
 extern void BD_EXT_Write(void);
 extern void MSG_BroadCast_Init(u8  Intype);
+extern void  idip(u8 *str);  
 
 
 //写入文本信息1-8

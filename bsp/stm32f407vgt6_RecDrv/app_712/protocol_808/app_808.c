@@ -101,7 +101,15 @@ void Device_LoginTimer(void)
 	 if(DEV_Login.Sd_counter>5)  
 	 {
           DEV_Login.Sd_counter=0;
-	   DEV_Login.Enable_sd=1;
+	      DEV_Login.Enable_sd=1;
+
+		  DEV_Login.Sd_times++;
+		  if(DEV_Login.Sd_times>5)
+		  	{
+		  	   DEV_Login.Sd_times=0;
+			   rt_kprintf("\r\n  鉴权次数发送超过最大，重新注册!\r\n");
+               DEV_regist.Enable_sd=1;   
+		  	}
 	 }
   }
 }
@@ -530,6 +538,7 @@ static void App808_thread_entry(void* parameter)
  
        //  step 2:   process config data   
          SysConfiguration();    // system config   	    
+         Gsm_RegisterInit();   //  init register states    ,then  it  will  power on  the module  
        //  step 3:    usb host init	   	    	//  step  4:   TF card Init    
        //  	 spi_sd_init();	    
           usbh_init();    
