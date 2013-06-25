@@ -72,7 +72,8 @@ u8 SaveCycleGPS(u32 cyclewr,u8 *content ,u16 saveLen)
 		    	}				
 		  //---------------------------
 		  PositionSD_Enable(); 
-		  Current_State=1; // 使能即时上报 		 		 
+		  Current_State=1; // 使能即时上报 		
+		  Current_UDP_sd=1;
 		  return false;		  		 
 	   	}       
   //   3. Write Record Content  

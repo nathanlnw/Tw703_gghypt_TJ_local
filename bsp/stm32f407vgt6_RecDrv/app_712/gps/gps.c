@@ -572,6 +572,60 @@ unsigned short  CalcCRC16( unsigned char*  src, int startpoint, int len )
 	return res;
 }
 
+
+
+void GpsIo_Init(void)
+{
+GPIO_InitTypeDef	GPIO_InitStructure;
+	NVIC_InitTypeDef	NVIC_InitStructure;
+
+	RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOC, ENABLE );
+	RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOD, ENABLE );
+	RCC_APB1PeriphClockCmd( RCC_APB1Periph_UART5, ENABLE );
+
+	GPIO_InitStructure.GPIO_Mode	= GPIO_Mode_OUT;
+	GPIO_InitStructure.GPIO_OType	= GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_PuPd	= GPIO_PuPd_NOPULL;
+	GPIO_InitStructure.GPIO_Speed	= GPIO_Speed_50MHz;
+
+	GPIO_InitStructure.GPIO_Pin = GPS_PWR_PIN;
+	GPIO_Init( GPS_PWR_PORT, &GPIO_InitStructure );
+	GPIO_ResetBits( GPS_PWR_PORT, GPS_PWR_PIN );
+
+/*uart5 管脚设置*/
+
+	GPIO_InitStructure.GPIO_OType	= GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_PuPd	= GPIO_PuPd_UP;
+	GPIO_InitStructure.GPIO_Mode	= GPIO_Mode_AF;
+	GPIO_InitStructure.GPIO_Speed	= GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_Pin		= GPIO_Pin_12;
+	GPIO_Init( GPIOC, &GPIO_InitStructure );
+
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
+	GPIO_Init( GPIOD, &GPIO_InitStructure );
+
+	GPIO_PinAFConfig( GPIOC, GPIO_PinSource12, GPIO_AF_UART5 );
+	GPIO_PinAFConfig( GPIOD, GPIO_PinSource2, GPIO_AF_UART5 );
+
+/*NVIC 设置*/
+	NVIC_InitStructure.NVIC_IRQChannel						= UART5_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority	= 1;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority			= 0;
+	NVIC_InitStructure.NVIC_IRQChannelCmd					= ENABLE;
+	NVIC_Init( &NVIC_InitStructure );
+
+	gps_baud( 9600 );
+	USART_Cmd( UART5, ENABLE );
+	USART_ITConfig( UART5, USART_IT_RXNE, ENABLE );
+
+	GPIO_SetBits( GPIOD, GPIO_Pin_10 );
+
+}
+	
+
+
+
+
 /*
    gps接收中断处理，收到\n认为收到一包
    收到一包调用处理函数

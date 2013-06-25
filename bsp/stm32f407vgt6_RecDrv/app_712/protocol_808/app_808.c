@@ -593,7 +593,7 @@ static void App808_thread_entry(void* parameter)
                 ISP_Process();    				
 		  Api_CHK_ReadCycle_status();//   Ñ­»·´æ´¢×´Ì¬¼ì²â		
 		  //-------- 808   Send data   		
-             	  if(DataLink_Status()&&(CallState==CallState_Idle))   
+            if(DataLink_Status()&&(CallState==CallState_Idle))   
 		   {   
 		        Do_SendGPSReport_GPRS();   
 		   } 

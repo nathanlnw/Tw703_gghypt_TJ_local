@@ -89,7 +89,9 @@ extern  GPS_ABNORMAL   Gps_Exception;
 
 //============================
 void gps_init( void );
+extern void gps_baud( int baud );
 extern void  gps_mode(u8 *str) ;
+extern void  GpsIo_Init(void);
 extern rt_err_t gps_onoff( uint8_t openflag );
 extern void  GPS_Abnormal_process(void);  
 void thread_gps_upgrade_uart( void* parameter );

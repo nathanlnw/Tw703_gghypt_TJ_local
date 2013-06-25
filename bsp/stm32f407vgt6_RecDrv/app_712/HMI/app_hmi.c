@@ -18,7 +18,7 @@
 #include <dfs_posix.h>
 
 
-#define                                      HMI_MsgQueStack_SIZE  512
+//#define                                      HMI_MsgQueStack_SIZE  512
 
  struct rt_mailbox mb_hmi;
  char   mb_hmi_pool[128];
@@ -361,23 +361,27 @@ static void HMI_thread_entry(void* parameter)
       //------------ lcd  related --------------
        Init_lcdkey();
        lcd_init();
+	   //-------- IC card related ---------------
+	   Init_4442(); 
+
+
 	rt_kprintf("\r\nJT808Conf_struct.password_flag=%d\r\n",JT808Conf_struct.password_flag);
     if(JT808Conf_struct.password_flag==0)
     	{
     	    JT808Conf_struct.Regsiter_Status=0;   //需要重新注册
             pMenuItem=&Menu_0_0_password;
-	    pMenuItem->show();
+	        pMenuItem->show();
     	}
 	else
 		{
-	    pMenuItem=&Menu_1_Idle;
-		pMenuItem->show();
+	        pMenuItem=&Menu_1_Idle;   
+		    pMenuItem->show();  
 		}
 	while (1)
 	{
 	       KeyCheckFun();
-              pMenuItem->timetick( 10 ); 
-	 	pMenuItem->keypress( 10 );  
+           pMenuItem->timetick( 10 ); 
+	 	   pMenuItem->keypress( 10 );    
 		if(print_rec_flag==1)
 			{
 			counter_printer++;
@@ -411,7 +415,7 @@ static void HMI_thread_entry(void* parameter)
 		else if(print_rec_flag==2)
 			{
 			counter_printer++;
-			if(counter_printer>=7)//打印间隔必须>300ms      7
+			if(counter_printer>=7)//打印间隔必须>300ms      7 
 				{
 				counter_printer=0;
 				if(ModuleStatus&Status_GPS)
@@ -420,8 +424,12 @@ static void HMI_thread_entry(void* parameter)
 					Dayin_Fun(0);
 				}
 			}
-               //--------------------------------------------
-               if(ASK_Centre.ASK_disp_Enable==1)
+		 //---------- IC card  insert --------------------------
+		 CheckICInsert(); 
+		 //------- Buzzer -----------------------------------
+		 KeyBuzzer(IC_CardInsert);
+		//--------------------------------------------
+		if(ASK_Centre.ASK_disp_Enable==1)
 		   {
 			ASK_Centre.ASK_disp_Enable=0; 
 			pMenuItem=&Menu_3_1_CenterQuesSend;
@@ -434,7 +442,7 @@ static void HMI_thread_entry(void* parameter)
 		       pMenuItem->show();
 		}
 	 	//--------------------------------------------	   
-              rt_thread_delay(5);       
+              rt_thread_delay(6);       
      }  
 }
 

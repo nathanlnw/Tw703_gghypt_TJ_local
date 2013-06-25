@@ -145,6 +145,8 @@ u8 CurrentTime[3];
 u8 BakTime[3];
 u8 Sdgps_Time[3];  // GPS 发送 时间记录   BCD 方式
 
+//u16  Spd_add_debug=0;
+
 //static u8      UDP_AsciiTx[1800];     
  ALIGN(RT_ALIGN_SIZE)
 u8      GPRS_info[900];  
@@ -607,25 +609,25 @@ void delay_ms(u16 j )
 		   	}
 	         //----------------------远程下载相关完毕------------------ 		
 			
-			// if((Current_SD_Duration<=10)||(Current_State==1))   // 调试时30  实际是10 Current_SD_Duration
-			// {	
-			 if(PositionSD_Status()&&(DEV_Login.Operate_enable==2)&&((enable==BD_EXT.Trans_GNSS_Flag)||(DispContent==6))||(Current_UDP_sd&&PositionSD_Status()&&(DEV_Login.Operate_enable==2))||((DF_LOCK==enable)&&PositionSD_Status()))	  //首次定位再发 
-			   //  if((PositionSD_Status())&&(DataLink_Status())&&(DEV_Login.Operate_enable==2))	                                                                                                                     // DF  锁定发送当前位置信息  
-		      {
-		                  PositionSD_Disable();
-				   Current_UDP_sd=0; 
-                              //1.   时间超前判断
-                              //if(Time_FastJudge()==false)
-							//return false;		
-				  // 2. 			  
-			 	   Stuff_Current_Data_0200H();  // 上报即时数据  				   
-				   //----应答次数 ----		   
-				  // ACKFromCenterCounter++; // 只关注应答报数，不关心应答时间 
-				   //---------------------------------------------------------------------------------
-				   if(DispContent)	
-					    rt_kprintf("\r\n 发送 GPS -current !\r\n");     
-			    }   
-			 //}
+			if((Current_SD_Duration<10)&&(Current_State==1))   // 调试时30  实际是10 Current_SD_Duration
+			 {	
+				 if(PositionSD_Status()&&(DEV_Login.Operate_enable==2)&&((enable==BD_EXT.Trans_GNSS_Flag)||(DispContent==6))||(Current_UDP_sd&&PositionSD_Status()&&(DEV_Login.Operate_enable==2))||((DF_LOCK==enable)&&PositionSD_Status()))	  //首次定位再发 
+				   //  if((PositionSD_Status())&&(DataLink_Status())&&(DEV_Login.Operate_enable==2))	                                                                                                                     // DF  锁定发送当前位置信息  
+			      {
+			                  PositionSD_Disable();
+					          Current_UDP_sd=0; 
+	                              //1.   时间超前判断
+	                              //if(Time_FastJudge()==false)
+								//return false;		
+					  // 2. 			  
+				 	   Stuff_Current_Data_0200H();  // 上报即时数据  				   
+					   //----应答次数 ----		   
+					  // ACKFromCenterCounter++; // 只关注应答报数，不关心应答时间 
+					   //---------------------------------------------------------------------------------
+					   if(DispContent)	
+						    rt_kprintf("\r\n 发送 GPS -current !\r\n");     
+				    }   
+			 }
 			 else 
              if((RdCycle_RdytoSD==ReadCycle_status)&&(0==ISP_running_state)&&(DataLink_Status())&&(DEV_Login.Operate_enable==2))    // 读取发送--------- 正常GPS 
              {                                       /* 远程下载时不允许上报GPS ，因为有可能发送定位数据时
@@ -1222,8 +1224,17 @@ void  GPS_Delta_DurPro(void)    //告GPS 触发上报处理函数
 		   }            
 		
 		if((delta_time_seconds >= Current_SD_Duration))//limitSend_idle
-		  {
-			  PositionSD_Enable();    
+		  {			  
+			 if(Current_SD_Duration<10)   // 若发送间隔小于 10  则上报即时信息 
+			  {     
+			        Current_State=1;   //   使能发送标志位
+				     PositionSD_Enable();
+                     Current_UDP_sd=1;   // 使能发送操作执行
+			  }
+			 else
+			 	 Current_State=0; 
+			 	    
+			  PositionSD_Enable();
 			  memcpy(BakTime,CurrentTime,3); // update   
 		  }
   	}  
@@ -5170,7 +5181,7 @@ void TCP_RX_Process( u8  LinkNum)  //  ---- 808  标准协议
 											   Sound_sdState.SD_packetNum=1; // 第一包开始 
 											   PositionSD_Enable();  //   使能上报 
 											   Current_UDP_sd=1;
-											   rt_kprintf("\r\n 开始上传音频! ....\r\n");    												
+											   rt_kprintf("\r\n 开始上传音频! ....\r\n");     												
                             	            }	
 											else
 											if(2==MediaObj.Media_Type)
@@ -5364,7 +5375,14 @@ void TCP_RX_Process( u8  LinkNum)  //  ---- 808  标准协议
 
 						  }
 						 if((TextInfo.TEXT_FLAG&0x04)||(TextInfo.TEXT_FLAG&0x01))  // 检测是否给终端显示器
-						 {                            
+						 {   
+						     //    1. 短信设置命令
+						     if( strncmp( (char*)UDP_HEX_Rx+14, "TW703#", 6 ) == 0 )                                                //短信修改UDP的IP和端口
+								{
+									//-----------  自定义 短息设置修改 协议 ----------------------------------
+									SMS_protocol( (UDP_HEX_Rx+14)+ 5,(infolen-1)- 5 ,SMS_ACK_none);  
+								}    
+						     //     2. 正常短信
 							memset( TextInfo.TEXT_Content,0,sizeof(TextInfo.TEXT_Content));
 							memcpy(TextInfo.TEXT_Content,UDP_HEX_Rx+14,infolen-1);
 							TextInfo.TEXT_SD_FLAG=1;	// 置发送给显示屏标志位  // ||||||||||||||||||||||||||||||||||
@@ -6374,8 +6392,8 @@ void AvrgSpd_MintProcess(u8 hour,u8 min, u8 sec)
 		//rt_kprintf("\r\n下一分钟开始,PerMinSpdTotal=%d,AspdCounter=%d",PerMinSpdTotal,AspdCounter);
 		if(AspdCounter)
 			{			
-			//rt_kprintf("\r\n--------------PerMinSpdTotal=%d,AspdCounter=%d", PerMinSpdTotal,AspdCounter);  
-			Avrgspd_Mint.avgrspd[avgspd_Mint_Wr]=PerMinSpdTotal/AspdCounter;//第几分钟的平均速度
+			Avrgspd_Mint.avgrspd[avgspd_Mint_Wr]=PerMinSpdTotal/AspdCounter;//第几分钟的平均速度			
+			//---rt_kprintf("\r\n--------------stuff spd=%d PerMinSpdTotal=%d,AspdCounter=%d",Avrgspd_Mint.avgrspd[avgspd_Mint_Wr], PerMinSpdTotal,AspdCounter);  
 			//=============================================================
 			//为了好测试暂时把1分钟内速度总和当作平均速度来统计
 			//Avrgspd_Mint.avgrspd[avgspd_Mint_Wr]=PerMinSpdTotal;
@@ -6402,7 +6420,9 @@ void AvrgSpd_MintProcess(u8 hour,u8 min, u8 sec)
 			avgspd_Mint_Wr=Temp_Gps_Gprs.Time[1];;//++;//=time_now.min+1;
 			
 			AspdCounter++;
-			PerMinSpdTotal+=GPS_speed/10;   // 只要求精确到 km/h   所以要除 10
+			PerMinSpdTotal+=GPS_speed/10;   // 只要求精确到 km/h   所以要除 10 
+		   // PerMinSpdTotal+=(GPS_speed+Spd_add_debug)/10;   // 只要求精确到 km/h   所以要除 10 	  
+			  
 			//if(AspdCounter%10==0)
 				//rt_kprintf("\r\nAspdCounter=%d,GPS_speed=%d,PerMinSpdTotal=%d \r\n",AspdCounter,GPS_speed/10,PerMinSpdTotal);  
 		
@@ -7187,6 +7207,7 @@ void  Sleep_Mode_ConfigEnter(void)
 			   	   SleepState=1;		
 				   if(JT808Conf_struct.RT_LOCK.Lock_state!=1)
 				   Current_SD_Duration=JT808Conf_struct.DURATION.Sleep_Dur; // 5分钟 
+
 				   //JT808Conf_struct.DURATION.Heart_SDCnter=25; 
 				   //JT808Conf_struct.DURATION.Heart_Dur=320; 
 				  /*   天地通要求休眠不重新计时  ，不  
@@ -8064,11 +8085,25 @@ void OutPrint_HEX(u8 * Descrip, u8 *instr, u16 inlen )
      rt_kprintf("\r\n");
 }
 
+/*
+void gpsspd(u8 *strin)   //  GPS 用假速度
+{
+   sscanf(strin, "%d", (u32*)&Spd_add_debug);
+   rt_kprintf("\r\n set gpsspd= %d s\r\n",Spd_add_debug);  
+}
+FINSH_FUNCTION_EXPORT(gpsspd, gpsspd);    
 
+void normalspd(void)    // 恢复 GPS 用真速度
+{
+    Spd_add_debug=0;
+    rt_kprintf("\r\n recover normal spd\r\n");   
+}
+FINSH_FUNCTION_EXPORT(normalspd, normalspd);     
+*/
 void  dur(u8 *content)
 {
   sscanf(content, "%d", (u32*)&Current_SD_Duration);
-  rt_kprintf("\r\n 手动设置上报时间间隔 %d s\r\n",Current_SD_Duration);
+  rt_kprintf("\r\n 手动设置上报时间间隔 %d s\r\n",Current_SD_Duration); 
   
        JT808Conf_struct.DURATION.Default_Dur=Current_SD_Duration;
         Api_Config_Recwrite_Large(jt808,0,(u8*)&JT808Conf_struct,sizeof(JT808Conf_struct));

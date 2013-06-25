@@ -32,13 +32,13 @@ u8		RemoteIP_main[4]={60,28,50,210};//{125,38,185,88};//{113,31,28,101 };//{113,
 u16		RemotePort_main= 7008;//天津9131;   河北天地通 8201             //test tianjin    
 u8		RemoteIP_aux[4]={60,28,50,210};    //{60,28,50,210}
 u16		RemotePort_aux=4000; 
-//      Link2  Related 
+//           Link2  Related 
 u8      Remote_Link2_IP[4]={60,28,50,210};
 u16     Remote_Link2_Port=9131;     
 
 
 
-u8          APN_String[30]="UNINET"; //"CMNET";   //  河北天地通  移动的卡
+u8           APN_String[30]="UNINET"; //"CMNET";   //  河北天地通  移动的卡
 u8           DomainNameStr[50]="jt1.gghypt.net"; ;  // 域名  天地通up.gps960.com //jt1.gghypt.net
 u8           DomainNameStr_aux[50]="jt2.gghypt.net";     //"www.sina.com";//jt2.gghypt.net
 u16         ACC_on_sd_Duration=30;    //  ACC 开启的时候 上报的时间间隔  
@@ -174,9 +174,9 @@ void  Delete_exist_Directory(void)
          Api_DFdirectory_Delete(Rail_rect);  
          Api_DFdirectory_Delete(Rail_polygen);  
          Api_DFdirectory_Delete(turn_point);        // 拐点 
-	  Api_DFdirectory_Delete(route_line);    // 路线
-	  Api_DFdirectory_Delete(ask_quesstion);    // 提问
-	  Api_DFdirectory_Delete(text_msg);   //  文本信息
+	     Api_DFdirectory_Delete(route_line);    // 路线
+	     Api_DFdirectory_Delete(ask_quesstion);    // 提问
+	     Api_DFdirectory_Delete(text_msg);   //  文本信息  
 
 
 	 //  记录 
@@ -1180,7 +1180,7 @@ void SendMode_Config(void)     //  发送方式设置
         if(1==JT808Conf_struct.SD_MODE.Dur_NologinMode)
         {
             Current_SD_Duration=JT808Conf_struct.DURATION.NoDrvLogin_Dur;
-			return;
+						return;
         }
 		if(1==JT808Conf_struct.SD_MODE.Dur_SleepMode)
         {
@@ -1194,22 +1194,22 @@ void SendMode_Config(void)     //  发送方式设置
 	{
         if(1==JT808Conf_struct.SD_MODE.Dist_EmgenceMode) 
         {
-            Current_State=JT808Conf_struct.DISTANCE.Emergen_Dist;
+            Current_SD_Distance=JT808Conf_struct.DISTANCE.Emergen_Dist;
 			return;
         }
 		if(1==JT808Conf_struct.SD_MODE.Dist_DefaultMode) 
         {
-            Current_State=JT808Conf_struct.DISTANCE.Defalut_DistDelta;
+            Current_SD_Distance=JT808Conf_struct.DISTANCE.Defalut_DistDelta;
 			return;
         }
         if(1==JT808Conf_struct.SD_MODE.Dist_NoLoginMode) 
         {
-            Current_State=JT808Conf_struct.DISTANCE.NoDrvLogin_Dist;
+            Current_SD_Distance=JT808Conf_struct.DISTANCE.NoDrvLogin_Dist;
 			return;
         }
 	    if(1==JT808Conf_struct.SD_MODE.Dist_SleepMode) 
         {
-            Current_State=JT808Conf_struct.DISTANCE.Sleep_Dist; 
+            Current_SD_Distance=JT808Conf_struct.DISTANCE.Sleep_Dist; 
 			return;
         }
 	   

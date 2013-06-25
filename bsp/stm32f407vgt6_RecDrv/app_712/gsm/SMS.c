@@ -448,7 +448,7 @@ void   SMS_protocol (u8 *instr,u16 len, u8  ACKstate)   //  ACKstate
 				{
 				      TiredDrv_write=0;
 				      TiredDrv_read=0;	   
-				      DF_Write_RecordAdd(TiredDrv_write,TiredDrv_read,TYPE_TiredDrvAdd);     
+				      DF_Write_RecordAdd(TiredDrv_write,TiredDrv_read,TYPE_TiredDrvAdd);      
 				      Add_SMS_Ack_Content(sms_ack_data,ACKstate);	  
 				}
 			else if(strncmp(pstrTemp,"DISCLEAR",8)==0)			///9Çå³ýÀï³Ì

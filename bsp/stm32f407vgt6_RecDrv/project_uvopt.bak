@@ -1488,10 +1488,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>30</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>13</TopLine>
-      <CurrentLine>18</CurrentLine>
+      <TopLine>16</TopLine>
+      <CurrentLine>29</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\app_712\gsm\Device_gsm.c</PathWithFileName>
       <FilenameWithoutPath>Device_gsm.c</FilenameWithoutPath>

@@ -476,6 +476,8 @@ void printer_get_str_glyph( unsigned char *pstr, unsigned char len )
 	unsigned char	row, col, offset;
 	unsigned int	val_old, val_new, val_mask, val_ret;
 
+    WatchDog_Feed(); 
+	
 	for( row = 0; row < GLYPH_ROW; row++ )
 	{
 		for( col = 0; col < GLYPH_COL; col++ )
