@@ -47,6 +47,7 @@
 extern void SST25V_Init(void);
 extern u8   SST25V_ByteRead(u32 ReadAddr);
 extern void SST25V_strWrite(u8 *p, u32 WriteAddr,u16 length);    
+extern u8  SST25V_OneSector_Write(u8 *p,  u32  addr,  u32 len);
 
 void SST25V_BufferRead(u8* pBuffer, u32 ReadAddr, u16 NumByteToRead);
 void SST25V_HighSpeedBufferRead(u8* pBuffer, u32 ReadAddr, u16 NumByteToRead);
@@ -55,6 +56,7 @@ u8 SST25V_HighSpeedRead(u32 ReadAddr);
 //extern u8 SPI_Flash_SendByte(u8 byte);
 //extern u8 SPI_Flash_ReceiveByte(void);
 extern void SST25V_ByteWrite(u8 Byte, u32 WriteAddr);
+extern void SST25V_BufferWrite(u8* pBuffer, u32 WriteAddr, u16 NumByteToRead); 
 void AutoAddressIncrement_WordProgramA(u8 Byte1, u8 Byte2, u32 Addr);
 void AutoAddressIncrement_WordProgramB(u8 state,u8 Byte1, u8 Byte2) ;
 

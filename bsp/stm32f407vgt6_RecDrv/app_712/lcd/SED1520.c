@@ -240,6 +240,23 @@ void lcd_init(void)
 	*/
  } 
 
+/*    Close  Disp         -- add  by  nathan */
+ void  lcd_mute(void)
+ {
+    lcd_out_ctl(0,3);
+    lcd_out_ctl(LCD_RESET,3);
+    //delay_ms(1);//3
+    
+    
+    lcd_out_ctl(LCD_SET_ADC_NOR,3); // !
+    lcd_out_ctl(LCD_SET_LINE+16,3);
+    lcd_out_ctl(LCD_SET_PAGE+0,3);
+    lcd_out_ctl(LCD_SET_COL,3); 
+	lcd_out_ctl(LCD_DISP_OFF,3);
+	
+	ControlBitShift(RST0|0x0|0x20); // Q6 ±³¹â   Q5 µÆ 
+
+ }
 
 #ifdef LCD_DEBUG
 

@@ -85,9 +85,9 @@ void  APP_IOpinInit(void)   //初始化 和功能相关的IO 管脚
 	gpio_init.GPIO_Mode  = GPIO_Mode_IN; 
 	GPIO_Init(GPIOE, &gpio_init);
 	//------------------- PE9 -----------------------------
-	gpio_init.GPIO_Pin	 = GPIO_Pin_9;				//------ACC  状态
-	gpio_init.GPIO_Mode  = GPIO_Mode_IN; 
-	GPIO_Init(GPIOE, &gpio_init);
+	//gpio_init.GPIO_Pin	 = GPIO_Pin_9;				//------ACC  状态
+	//gpio_init.GPIO_Mode  = GPIO_Mode_IN; 
+	//GPIO_Init(GPIOE, &gpio_init);
 	//------------------- PE7 -----------------------------
 	gpio_init.GPIO_Pin	 = GPIO_Pin_7;				//------车门开关状态  0 有效  常态下为高   
 	gpio_init.GPIO_Mode  = GPIO_Mode_IN;   //如果只接刹车，那就用PE5当刹车监视 
@@ -402,14 +402,15 @@ u8  Get_SensorStatus(void)
 void  IO_statusCheck(void)
 {
       Vehicle_sensor=Get_SensorStatus();
-	/*	Sensor_buf[save_sensorCounter].DOUBTspeed=GPS_speed/10;     //   速度  单位是km/h 所以除以10
-        Sensor_buf[save_sensorCounter++].DOUBTstatus=Vehicle_sensor;//   状态 
+	  //------------ 0.2s    速度状态 -----------------------
+	  Sensor_buf[save_sensorCounter].DOUBTspeed=GPS_speed/10;     //   速度  单位是km/h 所以除以10
+      Sensor_buf[save_sensorCounter++].DOUBTstatus=Vehicle_sensor;//   状态 
 		if(save_sensorCounter>100) 
 			{
-                       save_sensorCounter=0; 
+              save_sensorCounter=0; 
 			  sensor_writeOverFlag=1; 
 			}  
-        */ 
+      //-------------------------------------------------- 
 }
 
 void  ACC_status_Check(void)
@@ -656,19 +657,29 @@ FINSH_FUNCTION_EXPORT(debug_relay, Debug relay set) ;
   //  1 .  循环存储 
       u8       Api_cycle_write(u8 *buffer, u16 len) 
       {
-              WatchDog_Feed();
-             if( SaveCycleGPS(cycle_write,buffer,len))
-	     { //---- updata pointer   -------------		
-			cycle_write++;  	
-		       if(cycle_write>=Max_CycleNum)
-		  	               cycle_write=0;  
-			DF_Write_RecordAdd(cycle_write,cycle_read,TYPE_CycleAdd);   
-			DF_delay_ms(20);  
-	      //-------------------------------	
-	        return true;
-            }  
-	    else
-		return  false;	
+        if(rt_mutex_take(DF_lock_mutex,150)==RT_EOK) 
+	   {
+	          WatchDog_Feed();
+	          if( SaveCycleGPS(cycle_write,buffer,len))
+		     { //---- updata pointer   -------------		
+				cycle_write++;  	
+			       if(cycle_write>=Max_CycleNum)
+			  	               cycle_write=0;  
+				DF_Write_RecordAdd(cycle_write,cycle_read,TYPE_CycleAdd);   
+				DF_delay_ms(20);  
+		        //-------------------------------	
+		        rt_mutex_release(DF_lock_mutex);  //  释放
+		        return true;
+	            }  
+		    else
+		    {		         
+				 //-------------------------------	 
+				 rt_mutex_release(DF_lock_mutex);  //  释放
+			     return  false;  
+		    }	 
+        }
+		else
+			 return false;
   	}
 
       u8      Api_cycle_read(u8 *buffer, u16 len) 
@@ -813,7 +824,7 @@ FINSH_FUNCTION_EXPORT(debug_relay, Debug relay set) ;
          u8 Api_DFdirectory_Write(u8 *name,u8 *buffer, u16 len) 
          {
 		 
-               if(strcmp((const char*)name,spdpermin)==0)
+          if(strcmp((const char*)name,spdpermin)==0)
 		  {
 		            Save_PerMinContent(AvrgSpdPerMin_write,buffer, len);
 			     //-----  Record update----		

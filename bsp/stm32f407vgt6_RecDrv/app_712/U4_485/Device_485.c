@@ -923,10 +923,10 @@ static void timeout_485(void *  parameter)
        if(One_second_Counter_485>10)  
        {
             One_second_Counter_485=0;       
-	     Camra_Take_Exception();	 	
+	        Camra_Take_Exception();	      	   
        }	   
-         DwinLCD_Timer();
-	  DwinLCD_DispTrigger();	 
+       DwinLCD_Timer();
+	   DwinLCD_DispTrigger();	 
 }
 
 /* 485 thread */

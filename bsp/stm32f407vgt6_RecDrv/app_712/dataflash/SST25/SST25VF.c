@@ -2,6 +2,9 @@
 
 #include  "App_moduleConfig.h"
 
+static u8  OneSectorReg[4096]; 
+u8	  reg_4096[4096];  
+
 
 void SST25V_DBSY(void); 
 
@@ -215,6 +218,18 @@ void SST25V_ByteWrite(u8 Byte, u32 WriteAddr)
   SST25V_CS_HIGH();  
   SST25V_WaitForWriteEnd(); 
 }
+
+void SST25V_BufferWrite(u8* pBuffer, u32 WriteAddr, u16 NumByteToRead)
+{
+  u32  i=0;
+ 
+  for(i=0;i<NumByteToRead;i++)
+  {
+     SST25V_ByteWrite(*pBuffer,WriteAddr+i);
+     pBuffer++;
+  }
+}
+
 
 void SST25V_strWrite(u8 *p, u32 WriteAddr,u16 length)
 {
@@ -432,6 +447,79 @@ u16 SST25V_ReadManuID_DeviceID(u32 ReadManu_DeviceID_Addr)
   SST25V_CS_HIGH();
 } */
 
+
+/*
+      note:  使用前提是   addr+len 不允许超过  本扇区
+*/
+u8  SST25V_OneSector_Write(u8 *p,  u32  addr,  u32 len)
+{ 
+   u32   SectorStartAddr=addr&0xFFFFFFFFFFFFF000,i=0;  //  获取起始扇区的起始地址
+   u32   insector_offset=addr&0xFFF; // 取扇区内偏移地址 
+
+
+     rt_kprintf("\r\n addrin=0x%X  ,SectorAdd=0x%X \r\n",addr,SectorStartAddr);     
+
+	if(rt_mutex_take(DF_lock_mutex,150)==RT_EOK) 
+	{
+	  DF_LOCK=1;
+      //  1.  get   4096 to buf
+       WatchDog_Feed();
+       SST25V_BufferRead(OneSectorReg,SectorStartAddr,4096);
+       WatchDog_Feed();
+	   
+	   rt_kprintf("\r\n insector_offset=0x%X  \r\n",insector_offset);   
+	   //OutPrint_HEX("\r\n 读取前",OneSectorReg,4096);  
+       delay_ms(35);
+       WatchDog_Feed();
+	  
+	  // 2. 把更新的内容给填进去
+	   memcpy(OneSectorReg+insector_offset,p,len);  
+
+	  // 3.  erase  Sector
+	  	 SST25V_SectorErase_4KByte(SectorStartAddr);	
+	     WatchDog_Feed();
+	     DF_delay_ms(100); 	 
+		// OutPrint_HEX("\r\n 擦完写前",OneSectorReg,4096);  
+	  // 4.  write  buf  to  DF
+	  // SST25V_strWrite(OneSectorReg,SectorStartAddr,4096);
+	   SST25V_BufferWrite(OneSectorReg,SectorStartAddr,4096); 
+	   DF_delay_ms(100);    
+      
+
+         //---------------- add   for  debug----------------       
+	    WatchDog_Feed();
+	    SST25V_BufferRead(reg_4096,SectorStartAddr,4096); 
+		DF_delay_ms(50);    
+      
+	     //  rt_thread_delay(2);	  
+		   OutPrint_HEX("\r\n 读取后",OneSectorReg,4096);     
+		   for(i=0;i<4096;i++)
+		   {
+		       if(OneSectorReg[i]!=reg_4096[i])
+		       	{
+		       	    rt_kprintf("\r\n Error at =0x%X \r\n",i);   
+	                break;
+		       	}
+		   }	   
+       //----------- debug --------------------------------------------------  
+					
+		   WatchDog_Feed();
+	      delay_ms(5);
+      DF_LOCK=0; 
+	  //--------------------------------
+      rt_mutex_release(DF_lock_mutex);
+	  return  true;
+  	}	
+	else
+		  return false;
+}
+void df_test(void)
+{
+   SST25V_OneSector_Write("1234567890jfldsajfdsjafjsajldsjalfjdslfjldsjlfjdsjfdsajfdsjlfjdslkfjldsajf",0x316125,76);
+
+   SST25V_OneSector_Write("我们是共产主义接班人",0x316445,20);
+}
+FINSH_FUNCTION_EXPORT( df_test, df_test);   
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 

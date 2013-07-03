@@ -50,6 +50,9 @@
 //extern unsigned char l_display_array[LCD_Y_BYTES][LCD_X_BYTES];
 
 /* LCD function prototype list */
+/*    Close  Disp         -- add  by  nathan */
+extern void  lcd_mute(void); 
+
 extern void lcd_init(void);
 extern void lcd_out_dat(const unsigned char dat, const unsigned char nctrl);
 extern void lcd_out_ctl(const unsigned char cmd, const unsigned char nctrl);

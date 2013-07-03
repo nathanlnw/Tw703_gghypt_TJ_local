@@ -96,7 +96,7 @@ flash char  VoiceRec_getdata[]="AT%RECFGET=\"";          //at%recfget="test1.amr
 flash char  VoiceRec_delFile[]="AT%RECFDEL\r\n";   //  AT%RECFDEL="test1.amr" 
 
 //-------  struct  variables -------------
-static GSM_POWER   GSM_PWR;  
+GSM_POWER   GSM_PWR;  
 static IMSI_GET       IMSIGet; 
 COMM_AT               CommAT; 
 DATA_DIAL             DataDial;  

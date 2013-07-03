@@ -391,9 +391,24 @@ typedef struct _VEHICLE_CONTROL
 //--------  行车记录仪相关  -----
 typedef struct  _RECODER
 {
-  u16  Float_ID;     //  命令流水号
-  u8   CMD;     //  数据采集 
-  u8   SD_Data_Flag; //  发送返回数返回标志
+	u16  Float_ID;	   //  命令流水号
+	u8	 CMD;	  //  数据采集 
+	u8	 SD_Data_Flag; //  发送返回数返回标志
+	u8	 CountStep;  //  发送数据需要一步一步发送 
+	u32   timer;
+	//--------- add on	5-4 
+	u8	 Devide_Flag;//  需要分包上传标志位
+	u16  Total_pkt_num;   // 分包总包数
+	u16  Current_pkt_num; // 当前发送包数 从 1	开始
+	u8	  fcs;
+	u8	Error;//	0 idle	 1:   采集错误	 2:  设置错误 
+
+    //---------  记录仪仪采集----------------------
+    u8   Get_withDateFlag;  //  根据时间采集 
+	u8   Get_startDate[6];  // 采取起始时间
+	u8   Get_endDate[6];    //  采集结束时间  
+	u16  Get_recNum;      //    获取的条目数   
+
 }RECODER;
 //------  Camera  --------
 typedef struct _CAMERA
@@ -1112,7 +1127,8 @@ extern u8    Stuff_EventACK_0301H(void);
 extern u8    Stuff_ASKACK_0302H(void);    
 extern u8	 Stuff_MSGACK_0303H(void);	  
 extern u8    Stuff_ControlACK_0500H(void);    //   车辆控制应答
-extern u8    Stuff_RecoderACK_0700H(void);   //   行车记录仪数据上传
+extern u8    Stuff_RecoderACK_0700H_Error(void);   
+extern u8    Stuff_RecoderACK_0700H( u8 PaketType);   //   行车记录仪数据上传
 extern u8    Stuff_MultiMedia_InfoSD_0800H(void);      
 extern u8    Stuff_MultiMedia_Data_0801H(void);    
 extern u8    Stuff_MultiMedia_IndexAck_0802H(void);  
@@ -1180,17 +1196,7 @@ extern u8      Time_FastJudge(void);
 //==================================================================================================
 
 extern void  JT808_Related_Save_Process(void);
-extern void  Save_Status(u8 year,u8 mon,u8 day,u8 hour,u8 min,u8 sec);
 extern void  Spd_Exp_Wr(void);
-
-
-//==================================================================================================
-// 第五部分 :   以下是行车记录仪相关协议 即 附录A   
-//==================================================================================================
-
-
-
-
 
 
 

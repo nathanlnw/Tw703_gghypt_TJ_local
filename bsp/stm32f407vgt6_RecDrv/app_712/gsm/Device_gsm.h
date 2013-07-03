@@ -181,7 +181,10 @@ extern u8       TCP2_login;       // TCP 建立好连接后的标志位
 
 ALIGN(RT_ALIGN_SIZE)
 extern  u8     GSM_rx[GSMRX_SIZE];       
-extern  u8  GSM_AsciiTx[GSM_AsciiTX_SIZE];
+extern  u8     GSM_AsciiTx[GSM_AsciiTX_SIZE];
+
+extern 	GSM_POWER	GSM_PWR;  
+
 
 extern void GSM_CSQ_timeout(void);
 extern void GSM_CSQ_Query(void);

@@ -350,7 +350,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F4XX, USE_STDPERIPH_DRIVER,HSE_VALUE=8000000,USE_USB_OTG_FS</Define>
               <Undefine></Undefine>
-              <IncludePath>.;..\..\components\finsh;..\..\include;..\..\libcpu\arm\common;..\..\libcpu\arm\cortex-m4;Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x;Libraries\CMSIS\Include;Libraries\CMSIS\ST\STM32F4xx\Include;Libraries\STM32F4xx_StdPeriph_Driver\inc;applications;drivers;.\build;.\drivers\serial;.\drivers\include;.\drivers\include\drivers;.\app_712;.\app_712\gps;.\app_712\gsm;..\..\src;.\app_712\lcd;.\app_712\U4_485;.\app_712\protocol_808;.\app_712\HMI;.\app_712\rtc;.\drivers\include;.\app_712\dataflash;.\app_712\dataflash\SST25;.\app_712\printer;.\drivers\usb;..\..\components\dfs;..\..\components\dfs\include;..\..\components\dfs\src;..\..\components\dfs\filesystems\elmfat;..\..\components\dfs\filesystems\elmfat\option;..\..\components\dfs\filesystems\romfs;.\Libraries\STM32_USB_OTG_Driver\inc;.\Libraries\STM32_USB_OTG_Driver\src;.\Libraries\STM32_USB_HOST_Library\Class\MSC\inc;.\Libraries\STM32_USB_HOST_Library\Class\MSC\src;.\Libraries\STM32_USB_HOST_Library\Core\inc;.\Libraries\STM32_USB_HOST_Library\Core\src;.\drivers\usb;.\drivers\spi_TF;.\app_712\CAN;.\app_712\shakesensor</IncludePath>
+              <IncludePath>.;..\..\components\finsh;..\..\include;..\..\libcpu\arm\common;..\..\libcpu\arm\cortex-m4;Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x;Libraries\CMSIS\Include;Libraries\CMSIS\ST\STM32F4xx\Include;Libraries\STM32F4xx_StdPeriph_Driver\inc;applications;drivers;.\build;.\drivers\serial;.\drivers\include;.\drivers\include\drivers;.\app_712;.\app_712\gps;.\app_712\gsm;..\..\src;.\app_712\lcd;.\app_712\U4_485;.\app_712\protocol_808;.\app_712\HMI;.\app_712\rtc;.\drivers\include;.\app_712\dataflash;.\app_712\dataflash\SST25;.\app_712\printer;.\drivers\usb;..\..\components\dfs;..\..\components\dfs\include;..\..\components\dfs\src;..\..\components\dfs\filesystems\elmfat;..\..\components\dfs\filesystems\elmfat\option;..\..\components\dfs\filesystems\romfs;.\Libraries\STM32_USB_OTG_Driver\inc;.\Libraries\STM32_USB_OTG_Driver\src;.\Libraries\STM32_USB_HOST_Library\Class\MSC\inc;.\Libraries\STM32_USB_HOST_Library\Class\MSC\src;.\Libraries\STM32_USB_HOST_Library\Core\inc;.\Libraries\STM32_USB_HOST_Library\Core\src;.\drivers\usb;.\drivers\spi_TF;.\app_712\CAN;.\app_712\shakesensor;.\app_712\ICcard</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1425,6 +1425,21 @@
               <FileName>Menu_0_3_Sim.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\app_712\lcd\Menu_0_3_Sim.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>ICcard</GroupName>
+          <Files>
+            <File>
+              <FileName>IC_card.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\app_712\ICcard\IC_card.c</FilePath>
+            </File>
+            <File>
+              <FileName>SLE4442.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\app_712\ICcard\SLE4442.c</FilePath>
             </File>
           </Files>
         </Group>

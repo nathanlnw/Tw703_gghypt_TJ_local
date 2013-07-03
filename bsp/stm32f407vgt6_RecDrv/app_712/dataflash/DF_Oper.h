@@ -12,7 +12,7 @@ Crystal: 3.6864Mhz
 #ifndef _H_AT45
 #define _H_AT45
 
-#define    PageSIZE     512
+#define    PageSIZE     512 
 
 //================================================================
 /* 
@@ -20,8 +20,7 @@ Crystal: 3.6864Mhz
   ChipSize       : 4MBytes       PageSize(vitual): 512Bytes  SectorSize:4K<=>8 Pages    Chip: 1024Sectors<=>8192Pages
   
   Regulation :
-                    System_APP Area   :    1600 Page
-                    Vehicle Record Area:   left Pages
+                  
 
                     
 <一>   系统参数 以及 应用参数  行车记录相关地址存储部分
@@ -33,10 +32,15 @@ Crystal: 3.6864Mhz
  /*  0. Page 0~9     Producet Info */
  #define DF_ProInfo_Page      0
 
+#define    ConfigStart_offset                         8        //   Block   起始位置  Conifg  Struct Save      Sector 1 
+#define    JT808Start_offset                          16        //   Block   起始位置  Conifg  Struct Save    Sector 2
+#define    TiredCondifg_offset                       24        //   Block   起始位置  Conifg  Struct Save      Sector 3 
+ 
+
 
  /*  1. page 10 -903     ISP   */
   
-#define DF_BL_PageNo		                 10             /*DF_BL_RAM run PageNo:   10  ~ 49  page */
+#define DF_BL_PageNo		                 40             /*DF_BL_RAM run PageNo:   10  ~ 49  page */
 #define DF_APP1_PageNo		                 50             /*DF_APP_flah run PageNo:   50  ~ 903  page*/
                                                                                    /* 512K  -->1072 Page */ 
                                                                                           
@@ -113,7 +117,7 @@ Crystal: 3.6864Mhz
 #define       DF_PhoneBook_Page                        1440                           // Block 起始- 电话本相关
 #define       DF_CircleRail_Page                       1448                           // Block 起始- 圆形围栏
 
-#define       DF_RectangleRail_Page                    6000                           // Block 起始- 矩形围栏  1288  --过检验就用7000 了 24个 
+#define       DF_RectangleRail_Page                    3000                           // Block 起始- 矩形围栏  1288  --过检验就用7000 了 24个 
 
 #define       DF_PolygenRail_Page                      1464                           // Block 起始- 多边形围栏
 #define       DF_PicIndex_Page                         1480                           // Block 起始- 图像检索
@@ -201,39 +205,49 @@ Crystal: 3.6864Mhz
 
 
 
-#define       DF_DeviceID_offset                      6400                 // Block 起始位置   车辆ID  12  位 BCD   
+#define       DF_DeviceID_offset                      5400                 // Block 起始位置   车辆ID  12  位 BCD   
 
 
 //  15 字库不在Dataflash 了可以用了
 
-//   16 .  RT   struct          from    7000    //  Block   起始位置
-#define    ConfigStart_offset                         7000        //   Block   起始位置  Conifg  Struct Save
-
-
-#define    JT808Start_offset                          7100        //   Block   起始位置  Conifg  Struct Save
-
-#define    TiredCondifg_offset                       7200        //   Block   起始位置  Conifg  Struct Save
-
 
 
 //----  补充
-#define    DF_Broadcast_offset                      7300       //  Block   起始位置  播报起始地址
-#define    DF_Route_Page                               7400      // 1304                           // Block 起始- 路线
-#define    DF_turnPoint_Page                         7500       //  拐点
- #define   DF_AskQuestion_Page                    7600       //  中心提问 
+#define    DF_Broadcast_offset                      5300       //  Block   起始位置  播报起始地址
+#define    DF_Route_Page                               5400      // 1304                           // Block 起始- 路线
+#define    DF_turnPoint_Page                         5500       //  拐点
+ #define   DF_AskQuestion_Page                    5600       //  中心提问    
 /*                Dataflash     <------------   End              */ 
 
 
 
-//-------------------------------------------------------
-//存储程序以及图片信息所需
-/*#define TotalPageCount			4096	//总页面数
-#define BytesPerPage			       528		//每页面字节数
+//  =================  行车记录仪 相关 ============================
+/*
+    StartPage :    6320          Start Address offset :   0x316000       
 
-#define DF_ImageStartPage		601
-#define DF_ImageEndPage		610
-#define PhotoStartPage                   611
+    Area Size :
+                          213   Sector       = 1704  pages
+                           ----------------------
+                           
+				扇区               
+				1                                      00-07H
+				135                                   08H               
+				64                                     09H  
+				7                                      10H
+				2                                      11H 
+				2                                      12H
+				1                                      13H
+				1                                      14H  
+				1                                      15H   
+
+          ----------  只是在这里做了---  注释 ，具体操作在 Vdr.C 
+				
 */
+
+
+
+//-------------------------------------------------------
+
 
 extern  u8   DF_LOCK;    //     Dataflash  Lock  
 

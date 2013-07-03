@@ -31,6 +31,7 @@
 extern unsigned char IC_CardInsert;//1:IC卡插入正确  2:IC卡插入错误
 extern unsigned char IC_Check_Count;
 extern unsigned char administrator_card; 
+extern 	u8		  powerOn_first;	 //    首次上电后不判断拔卡  
 
 
 extern void CheckICInsert(void);

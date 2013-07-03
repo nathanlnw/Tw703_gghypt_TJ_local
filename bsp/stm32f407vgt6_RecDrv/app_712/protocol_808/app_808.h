@@ -34,6 +34,11 @@ extern   rt_device_t   Udisk_dev;
 extern   u8  Udisk_filename[30];  
 extern   int  udisk_fd;   
 extern   u16   AD_Volte;
+// Dataflash  Operate Semaphore  
+extern   rt_mutex_t DF_lock_mutex;    
+
+
+
 
 extern u8      Udisk_Find(void);
 extern void DeviceID_Convert_SIMCODE( void ); 

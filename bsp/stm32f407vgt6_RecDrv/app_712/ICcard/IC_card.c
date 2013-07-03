@@ -17,6 +17,8 @@
 #include  <stdlib.h>
 #include  <stdarg.h>
 #include "App_moduleConfig.h" 
+#include "Vdr.h"
+
 
 
 
@@ -27,6 +29,7 @@ unsigned char   Init8024Flag=0;
 unsigned int      DelayCheckIc=0;
 unsigned char   institution[45];
 unsigned char administrator_card=0;
+u8        powerOn_first=0;   //    首次上电后不判断拔卡  
 
 
 
@@ -68,6 +71,7 @@ u8 FLagx=0;//,len=0;
 unsigned char reg_record[32];
 u32 DriveCode32=0;
 
+
 //===================测试IC卡读写==================================================
 if(GPIO_ReadInputDataBit(GPIOC,GPIO_Pin_7))
 	{
@@ -76,18 +80,19 @@ if(GPIO_ReadInputDataBit(GPIOC,GPIO_Pin_7))
 		{
 		IC_Check_Count=0;
 	//带卡上电开8024的电
-	if(flag_8024off==1)
+/*	if(flag_8024off==1)       //  上电不读取IC 卡
 		{
-		R_Flag|=b_CardEdge;
-		Init8024Flag=2;
-		flag_8024off=0;
+			R_Flag|=b_CardEdge;
+			Init8024Flag=2;
+			flag_8024off=0;
 		}
+ */
 	//8024的off从低变高
 	if(Init8024Flag==1)
 		{
-		Init8024Flag=2;
-		R_Flag|=b_CardEdge;
-		//rt_kprintf("pc7  为 高，R_Flag＝1\r\n");
+			Init8024Flag=2;
+			R_Flag|=b_CardEdge;
+			//rt_kprintf("pc7  为 高，R_Flag＝1\r\n");
 		}
 	//检测到卡后初始化ic卡
 	if((R_Flag&b_CardEdge)&&(Init8024Flag==2))
@@ -108,22 +113,36 @@ if(GPIO_ReadInputDataBit(GPIOC,GPIO_Pin_7))
 			}			 
 		R_Flag&=~b_CardEdge;
 		write_flag=1;
-		//rt_kprintf("只执行1次\r\n");
-			}
+	     	rt_kprintf("  插卡  只执行1次\r\n");
+			//----------------------------------------------------
+            VDR_product_12H(0x01);  //  登录  
+			//----------------------------------------------------
+		}
 		}
 	}
 else 
 	{
+	
 	IC_Check_Count=0;
 	_CardSetRST_HIGH;
 	_CardSetPower_LOW;
 	_CardCMDVCC_HIGH;
 	if(Init8024Flag==0)
 		{
-		Init8024Flag=1;
-		//rt_kprintf("pc7  为 低\r\n");
+			Init8024Flag=1;
+			if(powerOn_first==0)
+				 powerOn_first=1;
+			else
+			 {
+			    //--------------------------------------------------- 
+			     rt_kprintf("   拔卡 pc7  为 低---触发\r\n");  
+                 VDR_product_12H(0x02);  //  登出 
+				//---------------------------------------------------
+				 
+			 }		 
 		}
 	}
+
 if(write_flag==1)
 	{
 	write_flag=0;
@@ -207,9 +226,5 @@ if(write_flag==1)
 //===================测试IC卡读写完成==================================================
 
 }
-
-
-
-
 
 

@@ -377,6 +377,7 @@ static void HMI_thread_entry(void* parameter)
 	        pMenuItem=&Menu_1_Idle;   
 		    pMenuItem->show();  
 		}
+
 	while (1)
 	{
 	       KeyCheckFun();
@@ -425,7 +426,8 @@ static void HMI_thread_entry(void* parameter)
 				}
 			}
 		 //---------- IC card  insert --------------------------
-		 CheckICInsert(); 
+		// if(GSM_PWR.GSM_power_over==1) 
+		     CheckICInsert(); 
 		 //------- Buzzer -----------------------------------
 		 KeyBuzzer(IC_CardInsert);
 		//--------------------------------------------

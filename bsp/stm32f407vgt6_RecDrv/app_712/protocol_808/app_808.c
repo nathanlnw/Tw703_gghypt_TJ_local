@@ -29,6 +29,16 @@ ALIGN(RT_ALIGN_SIZE)
 static MSG_Q_TYPE  app_rx_gsm_infoStruct;  // app   接收从gsm  来的数据结构
 static  struct rt_semaphore app_rx_gsmdata_sem;  //  app 提供数据 给gsm发送信号量
 
+
+// Dataflash  Operate   Mutex 
+rt_mutex_t DF_lock_mutex;  
+
+
+
+
+
+
+
 //----- app_thread   rx     gps_thread  data  related ----- 	
 //ALIGN(RT_ALIGN_SIZE)
 //static  MSG_Q_TYPE  app_rx_gps_infoStruct;  // app   接收从gsm  来的数据结构
@@ -402,7 +412,6 @@ static void timeout_app(void *  parameter)
 			   SendMode_ConterProcess(); 	  
 		    }	 
 		     SensorPlus_caculateSpeed();  	     
-		     IO_statusCheck(); 	 
 		     Emergence_Warn_Process();   
 		     Meida_Trans_Exception();	 
 			   
@@ -434,13 +443,14 @@ static void timeout_app(void *  parameter)
 			 }		
                   }	   
 		    //---------------------------------	
-		             //-----------保存数据-----------------
-         JT808_Related_Save_Process();
-		    //---------------------------------	
      	 }	
+	 
          //   Media 
            if(OneSec_CounterApp>>1)   //  除以2 为1	   
-	           Media_Timer_Service();        
+	        {    
+	            Media_Timer_Service(); 
+		        IO_statusCheck(); 	      // 0.2 s  一次  
+           	}
 	   //----------------------------------	
 
 }
@@ -546,7 +556,7 @@ static void App808_thread_entry(void* parameter)
           Init_ADC(); 
 		  
 		  DeviceID_Convert_SIMCODE(); //   translate		   
-		  
+		  total_ergotic();
        //  	 tf_open();      // open device  
 	// pos=dfs_mount("spi_sd","/sd","elm",0,0);	
        //   if(pos)
@@ -556,17 +566,11 @@ static void App808_thread_entry(void* parameter)
 	   
         /* watch dog init */
 	WatchDogInit();                    
- 
+   
 	while (1)
 	{
-               //  system reset  
-         /*       if(rt_sem_take(&SysRst_sem,2)==RT_EOK)
-              {
-                       Close_DataLink();  
-			  //reset  	  	  
-              }
-              */   
-		//--------------------------------------------------	
+
+		//   1.   处理相关接收到的   808 数据
        #if 0
                if (rt_sem_take(&app_rx_gsmdata_sem, 2) == RT_EOK) 
                {
@@ -589,16 +593,19 @@ static void App808_thread_entry(void* parameter)
              
 	#endif 
 			     
-                //    ISP  service  
-                ISP_Process();    				
-		  Api_CHK_ReadCycle_status();//   循环存储状态检测		
-		  //-------- 808   Send data   		
+       // 2.    远程下载相关        ISP  service  
+           ISP_Process();  
+
+	   // 3.    检查顺序存储 gps  标准信息的状态 
+		   Api_CHK_ReadCycle_status();//   循环存储状态检测		
+		   
+	   // 4.    808   Send data   		
             if(DataLink_Status()&&(CallState==CallState_Idle))   
 		   {   
 		        Do_SendGPSReport_GPRS();   
 		   } 
 
-                   //-----------------  顺序存储 GPS  -------------------		    
+       // 5. ---------------  顺序存储 GPS  -------------------		    
 		if(GPS_getfirst)	 //------必须搜索到经纬度
 		{
 			    if(Current_SD_Duration>10)// 间隔大于10s 存储顺序上报， 小于10 不存储上报 
@@ -606,10 +613,14 @@ static void App808_thread_entry(void* parameter)
 					   Save_GPS();       
 			    }
 		} 		 	   
-	     //============  状态检测 =======================
+	   // 6.   ACC 状态检测
                 ACC_status_Check();
-	     //---------------------------------------------------------------------------------------------	  
-                rt_thread_delay(22);	  
+	   // 7.   系统延时
+                rt_thread_delay(22);	
+	   
+	   // 8.	 行车记录仪相关的数据存储 
+		JT808_Related_Save_Process(); 
+	   //--------------------------------------------------------
 	}
 }
 
@@ -620,7 +631,9 @@ void Protocol_app_init(void)
 {
         rt_err_t result;
 
-
+        
+		DF_lock_mutex=rt_mutex_create("dflock",RT_IPC_FLAG_FIFO);   	 
+		
         rt_sem_init(&SysRst_sem,"SysRst",0,0);  
         rt_sem_init(&app_rx_gsmdata_sem, "appRxSem", 0, 0);   		
        //---------  timer_app ----------

@@ -11,8 +11,18 @@
 #include "App_moduleConfig.h"
 #include "Device_808.h"
 
+
+#define   SYSID            0x2987  
+                                /*        
+                                                        0x0000   -----   0x00FF  生产和研发用
+                                                        0x0100   -----   0x0FFF  产品出货用
+                                                        0x1000   -----   0xF000  远程升级用
+                                                       */    
+
+
+
 ALIGN(RT_ALIGN_SIZE) 
-SYS_CONF          SysConf_struct;   //  系统配置  
+SYS_CONF          SysConf_struct;   //  系统配置   
 
 ALIGN(RT_ALIGN_SIZE) 
 JT808_CONF       JT808Conf_struct;   //  JT 808   相关配置 
@@ -1292,7 +1302,9 @@ void SetConfig(void)
              //  2.1   先删除 
                // Delete_exist_Directory();
 	     //  2.2  重新写入		 
-                 FirstRun_Config_Write();   // 里边更新了 SYSID                 
+           FirstRun_Config_Write();   // 里边更新了 SYSID           
+
+		   erase_vdr(); 
 	  	   rt_kprintf("\r\nSave Over!\r\n");
 	}
 	else			
